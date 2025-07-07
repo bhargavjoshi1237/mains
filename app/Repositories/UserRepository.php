@@ -1,8 +1,11 @@
 <?php
 
 namespace App\Repositories;
-
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Str;
 
 class UserRepository extends BaseRepository
 {
@@ -14,17 +17,29 @@ class UserRepository extends BaseRepository
         $this->user = $user;
     }
    
-    public function addUser(array $data)
+    public function addUser(array $newuserdata)
     {
-        return $this->user->create($data);
+        $authenticatedUser = Auth::user();
+        
+        $newuser = [
+            'name' => $newuserdata['name'],
+            'email' => $newuserdata['email'],
+            'role' => $newuserdata['role'],
+            'id' => Str::uuid()->toString(),
+            'email_verified_at' => null,
+            'created_by' => $authenticatedUser->id,
+            'updated_by' => $authenticatedUser->id,
+            'password' => Hash::make($newuserdata['password']),
+        ];
+
+        return $this->user->create($newuser);
     }
 
 
-    public function updateUser($id, array $data)
+    public function updateUser(User $user, array $updateddata)
     {
-        $user = $this->user->findOrFail($id);
-        return $user->update($data);
+        $user->update($updateddata);
+        return $user;
     }
-
-    
 }
+   

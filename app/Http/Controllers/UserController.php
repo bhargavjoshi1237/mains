@@ -2,16 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Repositories\UserRepository;
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Enums\Role;
+use App\Enums\Status;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use App\Http\Middleware\RoleCheck;
+use Illuminate\Support\Facades\Auth;
+use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Validation\Rules\Enum;
 
 class UserController extends Controller
 {
 
     public function __construct(public UserRepository $userRepository)
     {
+        $this->middleware('rolecheck:Admin')->only(['create', 'store']);
     }
 
     /** 
@@ -19,8 +27,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = $this->userRepository->getAll();
-        return $users;
+        return Inertia::render('User/Index', [
+            'users' => $this->userRepository->getAll(),
+        ]);
     }
 
     /**
@@ -28,9 +37,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        Inertia::render('User/Create', [
-            
-        ]);
+        return Inertia::render('User/Create', []);
     }
 
     /**
@@ -38,7 +45,20 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        
+        // if (Auth::user()->role !== Role::Admin->value) {
+        //     abort(403, 'You are not authorized to perform this action.');
+        // }
+
+        $userdata = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'role' => ['required', new Enum(Role::class)],
+        ]);
+
+        $this->userRepository->addUser($userdata);
+
+        return redirect()->route('dashboard')->with('success', 'User created successfully.');
     }
 
     /**
@@ -46,8 +66,10 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        Inertia::render('User/Show', [
+
+        return Inertia::render('User/Show', [
             'user' => $user,
+            'createdBy' => User::find($user->created_by) ?: null,
         ]);
     }
 
@@ -56,7 +78,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-       Inertia::render('User/Edit', [
+        return Inertia::render('User/Edit', [
             'user' => $user,
         ]);
     }
@@ -66,7 +88,15 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //
+        $updateddata = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => ['required', new Enum(Role::class)],
+        ]);
+
+        $this->userRepository->updateUser($user, $updateddata);
+
+        return redirect()->route('dashboard')->with('success', 'User updated successfully.');
     }
 
     /**
@@ -74,7 +104,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $this->userRepository->destroy($user);
+        $this->userRepository->destroy($user->id);
         return redirect()->route('dashboard')->with('success', 'User deleted successfully.');
     }
 }

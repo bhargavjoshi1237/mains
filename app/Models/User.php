@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-
+    protected $keyType = 'string';
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'created_by',
+        'updated_by',
     ];
 
     /**
@@ -45,7 +48,6 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-
     protected static function boot()
     {
         parent::boot();
@@ -56,4 +58,5 @@ class User extends Authenticatable
             }
         });
     }
+    
 }
