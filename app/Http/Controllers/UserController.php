@@ -19,7 +19,7 @@ class UserController extends Controller
 
     public function __construct(public UserRepository $userRepository)
     {
-        $this->middleware('rolecheck:Admin')->only(['create', 'store']);
+        $this->middleware('rolecheck:admin')->only(['create', 'store']);
     }
 
     /** 
@@ -37,7 +37,9 @@ class UserController extends Controller
      */
     public function create()
     {
-        return Inertia::render('User/Create', []);
+        return Inertia::render('User/Create', [
+            'roles' => array_column(Role::cases(), 'value'),
+        ]);
     }
 
     /**
@@ -54,6 +56,8 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'role' => ['required', new Enum(Role::class)],
+            'client_company_name' => 'required_if:role,Client|string|nullable',
+            'client_company_number' => 'required_if:role,Client|string|nullable',
         ]);
 
         $this->userRepository->addUser($userdata);
@@ -80,6 +84,8 @@ class UserController extends Controller
     {
         return Inertia::render('User/Edit', [
             'user' => $user,
+            'roles' => array_column(Role::cases(), 'value'),
+            'currentRole' => $user->role,
         ]);
     }
 

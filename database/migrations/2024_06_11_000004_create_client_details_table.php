@@ -12,7 +12,7 @@ class CreateClientDetailsTable extends Migration
             $table->uuid('id')->primary();
             $table->uuid('user_id');
             $table->string('company_name')->nullable();
-            $table->string('contact_number')->nullable();
+            $table->string('company_number')->nullable(); 
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();

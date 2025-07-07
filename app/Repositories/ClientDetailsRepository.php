@@ -1,29 +1,28 @@
 <?php
 
 namespace App\Repositories;
-
-use App\Models\ClientDetails;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\ClientDetail;
+use Illuminate\Support\Str;
 
 class ClientDetailsRepository extends BaseRepository
 {
-    protected $clientDetails;
-
-    public function __construct(ClientDetails $clientDetails)
+    public function __construct(ClientDetail $model)
     {
-        parent::__construct($clientDetails);
-        $this->clientDetails = $clientDetails;
+        parent::__construct($model);
     }
 
-    public function addClientDetails(array $newClientData)
+    public function store(array $inputs): Model|Builder|null
     {
-        return $this->clientDetails->create($newClientData);
+        $data = [
+            'id' => !empty($inputs['id']) ? $inputs['id'] : (string) Str::uuid(),
+            'user_id' => $inputs['user_id'] ?? null,
+            'company_name' => $inputs['company_name'] ?? null,
+            'company_number' => $inputs['company_number'] ?? null,
+        ];
+        return $this->model->create($data);
     }
-
-    public function updateClientDetails($id, array $updatedClientData)
-    {
-        $client = $this->clientDetails->findOrFail($id);
-        return $client->update($updatedClientData);
-    }
-
-    
 }
+
+

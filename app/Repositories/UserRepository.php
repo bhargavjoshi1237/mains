@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Str;
+use App\Repositories\ClientDetailsRepository;
 
 class UserRepository extends BaseRepository
 {
@@ -32,7 +33,20 @@ class UserRepository extends BaseRepository
             'password' => Hash::make($newuserdata['password']),
         ];
 
-        return $this->user->create($newuser);
+        $user = $this->user->create($newuser);
+        $savedUser = $this->user->where('email', $newuserdata['email'])->first();
+
+        if ($newuserdata['role'] === 'client') {
+            $clientDetailsRepo = app(ClientDetailsRepository::class);
+            $clientDetailsRepo->store([
+                'id' => Str::uuid()->toString(),
+                'user_id' => (string) $savedUser->id,
+                'company_name' => $newuserdata['client_company_name'] ?? null,
+                'company_number' => $newuserdata['client_company_number'] ?? null,
+            ]);
+        }
+
+        return $savedUser;
     }
 
 
@@ -42,4 +56,4 @@ class UserRepository extends BaseRepository
         return $user;
     }
 }
-   
+
