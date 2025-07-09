@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -38,6 +39,12 @@ Route::resource('/user', UserController::class);
 Route::get('/user', [UserController::class, 'index'])->name('user.index');
 Route::resource('/project', ProjectController::class);
 Route::get('/project', [ProjectController::class, 'index'])->name('project.index');
+Route::get('/task', [TaskController::class, 'index'])->name('task.index');
+Route::get('/task/edit', [TaskController::class, 'edit'])->name('task.edit');
+Route::get('/task/create', [TaskController::class, 'create'])->name('task.create');
+
+
+Route::resource('task', TaskController::class)->except(['index']);
 
 
 

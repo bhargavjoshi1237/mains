@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Enums\Role;
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User;
+use App\Http\Requests\ProjectRequest;
+use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
@@ -16,21 +18,26 @@ class ProjectController extends Controller
         $this->projects = $projects;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $projects = Project::with(['client:id,name', 'createdByUser:id,name'])->get();
+        $user = auth()->user();
+
+        if ($user->role === Role::Admin->value) {
+            $projects = Project::with(['client:id,name', 'createdByUser:id,name'])->get();
+        } elseif ($user->role === Role::Client->value) {
+            $projects = Project::with(['client:id,name', 'createdByUser:id,name'])
+                ->where('client_id', $user->id)
+                ->get();
+        } else {
+            $projects = collect(); // or handle other roles as needed
+        }
 
         return inertia('Project/Index', [
             'projects' => $projects,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         $clients = User::where('role', 'client')->get(['id', 'name']);
@@ -39,38 +46,32 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+
+    public function store(ProjectRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'client_id' => 'required|uuid|exists:users,id',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
-
-        $this->projects->addProject($validated);
-
-        return redirect()->route('project.index')->with('success', 'Project created successfully.');
+        try {
+            $validated = $request->validated();
+            $this->projects->addProject($validated);
+            return redirect()->route('project.index')->with('success', 'Project created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Failed to create project: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show($id)
     {
         $project = $this->projects->getProjectById($id);
+        $tasks = \App\Models\Task::with(['assignedTo', 'createdBy'])
+            ->where('project_id', $id)
+            ->get();
         return Inertia::render('Project/Show', [
-            'project' => $project
+            'project' => $project,
+            'tasks' => $tasks,
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit($id)
     {
         $project = $this->projects->getProjectById($id);
@@ -79,30 +80,26 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+
+    public function update(ProjectRequest $request, $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'client_id' => 'required|uuid|exists:users,id',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
-
-        $this->projects->updateProject($id, $validated);
-
-        return redirect()->route('project.index')->with('success', 'Project updated successfully.');
+        try {
+            $validated = $request->validated();
+            $this->projects->updateProject($id, $validated);
+            return redirect()->route('project.index')->with('success', 'Project updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Failed to update project: ' . $e->getMessage());
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy($id)
     {
-        $this->projects->deleteProject($id);
-        return redirect()->route('project.index')->with('success', 'Project deleted successfully.');
+        try {
+            $this->projects->destroy($id);
+            return redirect()->route('project.index')->with('success', 'Project deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete project: ' . $e->getMessage());
+        }
     }
 }

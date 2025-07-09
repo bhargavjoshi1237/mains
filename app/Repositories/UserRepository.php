@@ -3,9 +3,11 @@
 namespace App\Repositories;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Enums\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Str;
+
 use App\Repositories\ClientDetailsRepository;
 
 class UserRepository extends BaseRepository
@@ -36,7 +38,7 @@ class UserRepository extends BaseRepository
         $user = $this->user->create($newuser);
         $savedUser = $this->user->where('email', $newuserdata['email'])->first();
 
-        if ($newuserdata['role'] === 'client') {
+        if ($newuserdata['role'] === Role::Client->value) {
             $clientDetailsRepo = app(ClientDetailsRepository::class);
             $clientDetailsRepo->store([
                 'id' => Str::uuid()->toString(),
@@ -49,11 +51,29 @@ class UserRepository extends BaseRepository
         return $savedUser;
     }
 
-
-    public function updateUser(User $user, array $updateddata)
+    public function updateUser($id, array $userdata)
     {
-        $user->update($updateddata);
-        return $user;
+        $user = $this->user->find($id);
+        if (!$user) {
+            return null;
+        }
+        $authenticatedUserxx = Auth::user();
+
+        $updateData = [
+            'name' => $userdata['name'] ?? $user->name,
+            'email' => $userdata['email'] ?? $user->email,
+            'role' => $userdata['role'] ?? $user->role,
+            'updated_by' => $authenticatedUserxx->id,
+        ];
+
+        // Optionally update password if provided
+        if (!empty($userdata['password'])) {
+            $updateData['password'] = Hash::make($userdata['password']);
+        }
+
+        $user->update($updateData);
+
+        return $user->fresh();
     }
 }
 

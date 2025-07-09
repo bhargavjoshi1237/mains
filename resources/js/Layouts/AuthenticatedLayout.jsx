@@ -43,7 +43,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                 </div>
                             )}
-                            {user.role === 'admin' && (
+                           
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                     <NavLink
                                         href={route('project.index')}
@@ -53,7 +53,20 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </NavLink>
 
                                 </div>
-                            )}
+                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                    <NavLink
+                                        href={route('task.index')}
+                                        active={
+                                            route().current('task.index') ||
+                                            route().current('task.edit') ||
+                                            route().current('task.create')
+                                        }
+                                    >
+                                        Tasks
+                                    </NavLink>
+
+                                </div>
+                            
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">

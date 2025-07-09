@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function Show() {
-  const { project } = usePage().props;
+  const { project, tasks = [] } = usePage().props;
 
   if (!project) {
     return <div className="p-6 text-center text-gray-600">Project not found.</div>;
@@ -37,6 +37,29 @@ export default function Show() {
       </div>
       <div className="mb-4">
         <span className="font-semibold">Updated At:</span> {new Date(project.updated_at).toLocaleString()}
+      </div>
+      {/* Show tasks */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-2">Tasks</h2>
+        {tasks.length === 0 ? (
+          <div className="text-gray-500">No tasks for this project.</div>
+        ) : (
+          <ul className="divide-y divide-gray-200">
+            {tasks.map(task => (
+              <li key={task.id} className="py-2">
+                <Link href={`/task/${task.id}`} className="block">
+                  <div className='border border-gray-400 rounded-xl p-4 hover:bg-gray-50 transition'>
+                    <div className="font-medium">{task.name}</div>
+                    <div className="text-sm text-gray-600">{task.description}</div>
+                    <div className="text-xs text-gray-500">
+                      Status: {task.status} | Assigned To: {task.assigned_to?.name ?? '-'} | Created By: {task.created_by?.name ?? '-'}
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <br />
       <Link
