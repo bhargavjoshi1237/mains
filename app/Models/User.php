@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
-
+use App\Models\Project;
 class User extends Authenticatable
 {
    
@@ -58,5 +58,15 @@ class User extends Authenticatable
                 $model->{$model->getKeyName()} = (string) Str::uuid();
             }
         });
+    }
+
+    public function projectsAsEmployee()
+    {
+        return $this->belongsToMany(
+           Project::class,
+            'project_employees',
+            'user_id',
+            'project_id'
+        );
     }
 }

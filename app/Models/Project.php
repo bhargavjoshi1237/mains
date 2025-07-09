@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Project extends Model
 {
-       protected $keyType = 'string';
+    protected $keyType = 'string';
+    public $incrementing = false;
 
-       protected $fillable = [
-        'id',   
+    protected $fillable = [
         'name',
         'description',
         'client_id',
@@ -29,8 +30,24 @@ class Project extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function updatedByUser()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     public function client()
     {
         return $this->belongsTo(User::class, 'client_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
     }
 }

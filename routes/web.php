@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\IssueController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,11 +19,7 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard', [
-        'user' => auth()->user(),
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/test', function () {
     return Inertia::render('Test', [
@@ -45,6 +43,8 @@ Route::get('/task/create', [TaskController::class, 'create'])->name('task.create
 
 
 Route::resource('task', TaskController::class)->except(['index']);
+Route::resource('issues', IssueController::class);
+
 
 
 

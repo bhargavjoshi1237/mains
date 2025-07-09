@@ -1,92 +1,232 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 
-export default function Dashboard({ user }) {
+export default function Dashboard({ user, totalTasks, totalUsers, totalProjects, totalEmployees, totalClients, totalIssuesLast30Days, recentActivities }) {
+    const { error, users } = usePage().props;
+
+    // Build a map of userId => userName for quick lookup
+    const userMap = {};
+    if (users && Array.isArray(users)) {
+        users.forEach(u => {
+            userMap[u.id] = u.name;
+        });
+    }
+
     return (
         <AuthenticatedLayout
             role={user?.role}
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
-                </h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                        Dashboard
+                    </h2>
+                    <div className="text-sm text-gray-500">
+                        {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    </div>
+                </div>
             }
         >
             <Head title="Dashboard" />
-
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            You're logged in!
-                        </div>
-                    </div>
-
-                    {/* Only show for admin */}
-                    {user?.role === 'admin' && (
-                        <>
-                            <div className='mt-5 w-[350px] rounded-xl bg-white shadow-lg h-auto flex items-center p-4 gap-4'>
-                                {/* Status Indicator */}
-                                <div className='h-24 w-2 rounded-lg'
-                                    style={{ backgroundColor: "#ef4444" /* red-500 */ }}>
-                                </div>
-                                {/* Task Content */}
-                                <div className='flex-1 flex flex-col justify-between'>
-                                    <div className='flex items-center justify-between'>
-                                        <h3 className='text-lg font-semibold text-gray-800'>Create The Home Page</h3>
-                                        {/* <span className='text-xs px-2 py-1 rounded bg-red-100 text-red-600 font-medium'>
-                                        In Progress
-                                    </span> */}
-                                    </div>
-                                    <p className='text-sm text-gray-600 mt-1'>
-                                        Create the homepage as the UI is designed, with created buttons and colors.
-                                    </p>
-                                    <div className='flex'>
-                                        <div className='w-full flex items-center gap-2 mt-3'>
-                                            <span className='text-xs text-gray-500'>Assigned to:</span>
-                                            <div className='text-xs item-center justify-enter flex font-medium text-gray-700 bg-gray-100 px-2 py-0.5 rounded'>
-                                                <div className='w-[8px] h-[8px] mt-1 mr-1 bg-green-600 rounded-full'></div>
-                                                John
-                                            </div>
-                                        </div>
-                                        <div className='w-full flex items-center gap-2 mt-3'>
-                                            <span className='text-xs text-gray-400 ml-2'>
-                                                • Assigned on: 20 Jun 25
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Users Widget */}
-                            <div className='mt-5 w-[350px] rounded-xl bg-white shadow-lg h-auto flex items-center p-4 gap-4'>
-                                {/* SVG Icon */}
-                                <div className='h-16 w-16 flex items-center justify-center bg-blue-100 rounded-lg'>
-                                    <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
-                                        <circle cx="12" cy="7" r="4" fill="#3b82f6" />
-                                        <path d="M4 20c0-2.21 3.582-4 8-4s8 1.79 8 4v1H4v-1z" fill="#3b82f6" opacity="0.3" />
+                    {/* Error Alert */}
+                    {error && (
+                        <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-4">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                     </svg>
                                 </div>
-                                {/* User Stats Content */}
-                                <div className='flex-1 flex flex-col justify-between'>
-                                    <div className='flex items-center justify-between'>
-                                        <h3 className='text-lg font-semibold text-gray-800'>Employee One</h3>
-                                    </div>
-                                    <div className='mt-1 flex flex-col gap-1'>
-                                        <div className='flex items-center justify-between'>
-                                            <span className='text-sm text-gray-600'>Total Tasks Assigned</span>
-                                            <span className='text-sm font-bold text-gray-800'>12</span>
-                                        </div>
-                                        <div className='flex items-center justify-between'>
-                                            <span className='text-sm text-gray-600'>Total Projects Assigned</span>
-                                            <span className='text-sm font-bold text-gray-800'>3</span>
-                                        </div>
+                                <div className="ml-3">
+                                    <p className="text-sm font-medium text-red-800">{error}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
+                    {/* Stats Grid - Vercel Style */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6 mb-8">
+                        {[
+                            { 
+                                title: "Total Tasks", 
+                                value: totalTasks ?? 0,
+                                icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                            },
+                            { 
+                                title: "Total Projects", 
+                                value: totalProjects ?? 0,
+                                icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2M7 7h10"
+                            },
+                            { 
+                                title: "Total Users", 
+                                value: totalUsers ?? 0,
+                                icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                            },
+                            { 
+                                title: "Employees", 
+                                value: totalEmployees ?? 0,
+                                icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                            },
+                            { 
+                                title: "Clients", 
+                                value: totalClients ?? 0,
+                                icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                            },
+                            { 
+                                title: "Issues (30d)", 
+                                value: totalIssuesLast30Days ?? 0,
+                                // Changed to warning triangle icon
+                                icon: "M12 9v2m0 4h.01M21 18a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v12zM12 7v2m0 4h.01"
+                            }
+                        ].map((stat, index) => (
+                            <div key={index} className="rounded-lg border border-gray-200 bg-white p-4 shadow-xs">
+                                <div className="flex items-center">
+                                    <div className="rounded-md bg-black p-2">
+                                        <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={stat.icon} />
+                                        </svg>
+                                    </div>
+                                    <div className="ml-3">
+                                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{stat.title}</p>
+                                        <p className="text-xl font-semibold text-gray-900">{stat.value}</p>
                                     </div>
                                 </div>
                             </div>
-                        </>
-                    )}
+                        ))}
 
+                    </div>
 
+                   
+                    <div className="space-y-6">
+                        
+                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <div className="px-6 py-5 border-b border-gray-200">
+                                <h3 className="text-base font-semibold leading-6 text-gray-900">Recent Activities</h3>
+                            </div>
+                            <div className="divide-y divide-gray-200">
+                                {recentActivities && recentActivities.length > 0 ? (
+                                    recentActivities.map((activity, idx) => (
+                                        <div key={activity.id || idx} className="px-4 py-2 rounded-xl  bg-gray-100 mt-4 ml-4 mr-4">
+                                            <div className="flex items-center">
+                                                <div className="flex-shrink-0">
+                                                    <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
+                                                        <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div className="ml-4 flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between">
+                                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                                            {activity.entity_name}
+                                                        </p>
+                                                        <div className="flex flex-col items-end">
+                                                            <p className="text-xs text-gray-500 ml-2 whitespace-nowrap">
+                                                                {new Date(activity.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </p>
+                                                            <p className="text-xs text-gray-400 ml-2 whitespace-nowrap">
+                                                                {new Date(activity.created_at).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' })}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-sm text-gray-500">
+                                                        <span className="capitalize">{activity.type}</span> {activity.action}
+                                                        {activity.performed_by && (
+                                                            <span className="text-gray-400 ml-1">
+                                                                by {userMap[activity.performed_by] || activity.performed_by}
+                                                            </span>
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="px-6 py-4 text-center text-sm text-gray-500">
+                                        No recent activities to display
+                                    </div>
+                                )}
+                            </div>
+                            {recentActivities && recentActivities.length > 0 && (
+                                <div className="px-6 py-3 bg-gray-50 text-right text-sm">
+                                    <a href="#" className="font-medium text-gray-600 hover:text-gray-900">
+                                        View all activities →
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Admin-Specific Content */}
+                        {user?.role === 'admin' && (
+                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                {/* Employee Overview Card */}
+                                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                    <div className="px-6 py-5 border-b border-gray-200">
+                                        <h3 className="text-base font-semibold leading-6 text-gray-900">Employee Overview</h3>
+                                    </div>
+                                    <div className="px-6 py-4">
+                                        <div className="flex items-start">
+                                            <div className="flex-shrink-0">
+                                                <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                                                    <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div className="ml-4 flex-1">
+                                                <h4 className="text-sm font-medium text-gray-900">Employee One</h4>
+                                                <div className="mt-3 grid grid-cols-2 gap-4">
+                                                    {[
+                                                        { label: "Tasks Assigned", value: "12" },
+                                                        { label: "Projects", value: "3" },
+                                                        { label: "Completed", value: "8" },
+                                                        { label: "Overdue", value: "1" }
+                                                    ].map((item, i) => (
+                                                        <div key={i}>
+                                                            <p className="text-xs text-gray-500">{item.label}</p>
+                                                            <p className="text-sm font-semibold text-gray-900">{item.value}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Quick Actions Card */}
+                                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                    <div className="px-6 py-5 border-b border-gray-200">
+                                        <h3 className="text-base font-semibold leading-6 text-gray-900">Quick Actions</h3>
+                                    </div>
+                                    <div className="px-6 py-4 grid grid-cols-2 gap-4">
+                                        <button className="group flex items-center space-x-3 text-left p-3 rounded-md hover:bg-gray-50">
+                                            <div className="flex-shrink-0 h-8 w-8 rounded-md bg-blue-50 flex items-center justify-center">
+                                                <svg className="h-5 w-5 text-blue-600 group-hover:text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-900">New Task</p>
+                                                <p className="text-xs text-gray-500">Create a new task</p>
+                                            </div>
+                                        </button>
+                                        <button className="group flex items-center space-x-3 text-left p-3 rounded-md hover:bg-gray-50">
+                                            <div className="flex-shrink-0 h-8 w-8 rounded-md bg-green-50 flex items-center justify-center">
+                                                <svg className="h-5 w-5 text-green-600 group-hover:text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2M7 7h10" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-900">New Project</p>
+                                                <p className="text-xs text-gray-500">Start a new project</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>

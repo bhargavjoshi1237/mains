@@ -3,7 +3,7 @@ import { Link, usePage, Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Index() {
-  const { projects } = usePage().props;
+  const { projects, userauth } = usePage().props;
 
   return (
     <AuthenticatedLayout
@@ -12,85 +12,57 @@ export default function Index() {
           <h2 className="text-xl font-semibold leading-tight text-gray-800">
             Projects
           </h2>
-          <Link
+           {userauth?.role === 'admin' && (<Link
             href="/project/create"
             className="ml-auto px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
           >
             Create Project
-          </Link>
+          </Link> )}
         </div>
       }
     >
       <Head title="Projects" />
       <div className="py-8">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {projects && projects.length > 0 ? (
               projects.map(project => (
-                <div
+                <Link
                   key={project.id}
-                  className="relative group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-200 p-6 flex flex-col min-h-[220px]"
+                  href={`/project/${project.id}`}
+                  className="relative group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md block"
                 >
-                  {/* Top Icon */}
-                  <div className="absolute -top-6 left-6 flex items-center justify-center">
-                    <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center shadow border border-blue-100">
-                      <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
-                        <rect x="4" y="4" width="16" height="16" rx="4" fill="#3b82f6" />
-                        <rect x="7" y="7" width="10" height="10" rx="2" fill="#fff" opacity="0.5" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="flex-1 flex flex-col justify-between mt-8">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-white opacity-70"></div>
+                  <div className="relative p-5 flex flex-col h-full">
+                    {/* Top Icon */}
+                     
+                    
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center justify-between mb-2">
                         <h3 className="text-lg font-semibold text-gray-900 truncate">{project.name}</h3>
-                        <span className="text-xs text-gray-500">{project.client?.name ?? project.client_id}</span>
+                        <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">{project.client?.name ?? project.client_id}</span>
                       </div>
-                      <div className="text-sm text-gray-600 mb-2 truncate">{project.description}</div>
-                      <div className="flex flex-col gap-1 text-xs text-gray-500">
-                        <div>
-                          <span className="font-medium text-gray-700">Created By: </span>
-                          <span className="text-gray-800">{project.created_by_user?.name ?? project.created_by}</span>
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{project.description}</p>
+                      
+                      <div className="mt-auto space-y-2 text-xs text-gray-600">
+                        <div className="flex items-center">
+                          <svg className="w-3 h-3 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span>{project.created_by_user?.name ?? project.created_by}</span>
                         </div>
-                        <div>
-                          <span className="font-medium text-gray-700">Start: </span>
-                          <span className="text-gray-800">{project.start_date}</span>
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-700">End: </span>
-                          <span className="text-gray-800">{project.end_date}</span>
+                        <div className="flex items-center">
+                          <svg className="w-3 h-3 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span>{project.start_date} → {project.end_date}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-6">
-                      <Link
-                        href={`/project/${project.id}`}
-                        className="flex-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 text-xs font-medium text-gray-800 transition text-center"
-                      >
-                        View
-                      </Link>
-                      <Link
-                        href={`/project/${project.id}/edit`}
-                        className="flex-1 px-3 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xs font-medium transition text-center"
-                      >
-                        Edit
-                      </Link>
-                      <Link
-                        href={`/project/${project.id}`}
-                        method="delete"
-                        as="button"
-                        className="flex-1 px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 text-xs font-medium transition text-center"
-                        onClick={e => {
-                          if (!confirm('Are you sure you want to delete this project?')) {
-                            e.preventDefault();
-                          }
-                        }}
-                      >
-                        Delete
-                      </Link>
-                    </div>
+                    
+                    {/* ...existing code for action buttons can be removed or kept outside the Link as needed... */}
                   </div>
-                </div>
+                </Link>
               ))
             ) : (
               <div className="text-gray-600">No projects found.</div>

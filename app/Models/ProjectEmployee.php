@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Project;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class ProjectEmployee extends Model
 {
-    protected $keyType = 'string';
     protected $table = 'project_employees';
+    protected $fillable = ['project_id', 'user_id'];
     public $timestamps = false;
     public $incrementing = false;
 
-    protected $fillable = ['project_id', 'user_id'];
+     
 
     public function project()
     {

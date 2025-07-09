@@ -8,21 +8,20 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleCheck
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next, $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
-        // Debug: Log user role and required role
-        // \Log::info('RoleCheck', ['user_role' => $user?->role, 'required_role' => $role]);
-        // dd($user?->role, $role); // Uncomment for debugging
-
-        if (!$user || $user->role !== $role) {
-            abort(403, 'Unauthorized');
+        
+        // Allow admin to bypass all checks
+        if ($user && $user->role === 'admin') {
+            return $next($request);
         }
+
+        // Check if user has any of the required roles
+        if (!$user || !in_array($user->role, $roles)) {
+            abort(403, 'Unauthorized action.');
+        }
+
         return $next($request);
     }
 }

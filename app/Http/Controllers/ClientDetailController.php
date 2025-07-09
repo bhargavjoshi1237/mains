@@ -12,7 +12,11 @@ class ClientDetailController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            // ...existing code...
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -20,7 +24,11 @@ class ClientDetailController extends Controller
      */
     public function create()
     {
-        //
+        try {
+            // ...existing code...
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -28,7 +36,11 @@ class ClientDetailController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            // ...existing code...
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -36,7 +48,11 @@ class ClientDetailController extends Controller
      */
     public function show(ClientDetail $clientDetail)
     {
-        //
+        try {
+            // ...existing code...
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -44,7 +60,11 @@ class ClientDetailController extends Controller
      */
     public function edit(ClientDetail $clientDetail)
     {
-        //
+        try {
+            // ...existing code...
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -52,7 +72,11 @@ class ClientDetailController extends Controller
      */
     public function update(Request $request, ClientDetail $clientDetail)
     {
-        //
+        try {
+            // ...existing code...
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -60,6 +84,10 @@ class ClientDetailController extends Controller
      */
     public function destroy(ClientDetail $clientDetail)
     {
-        //
+        try {
+            // ...existing code...
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 }

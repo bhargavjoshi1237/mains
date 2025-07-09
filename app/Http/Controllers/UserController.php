@@ -12,13 +12,15 @@ use App\Repositories\UserRepository;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Auth\Access\AuthorizationException;
+use App\Models\ClientDetail;
+use App\Repositories\ActivityRepository;
 
 class UserController extends Controller
 {
 
     public function __construct(public UserRepository $userRepository)
     {
-        $this->middleware('rolecheck:admin')->only(['create', 'store','index', 'edit', 'update', 'destroy']);
+        $this->middleware('role:admin');
     }
 
     /** 
@@ -26,9 +28,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        return Inertia::render('User/Index', [
-            'users' => $this->userRepository->getAll(),
-        ]);
+        try {
+            return Inertia::render('User/Index', [
+                'users' => $this->userRepository->getAll(),
+            ]);
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -36,9 +42,13 @@ class UserController extends Controller
      */
     public function create()
     {
-        return Inertia::render('User/Create', [
-            'roles' => array_column(Role::cases(), 'value'),
-        ]);
+        try {
+            return Inertia::render('User/Create', [
+                'roles' => array_column(Role::cases(), 'value'),
+            ]);
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -48,10 +58,14 @@ class UserController extends Controller
     {
         try {
             $userdata = $request->validated();
-            $this->userRepository->addUser($userdata);
-            return redirect()->route('dashboard')->with('success', 'User created successfully.');
+            $user = $this->userRepository->addUser($userdata);
+
+            // Log activity
+            ActivityRepository::log('user', 'created', $user->id, $user->name);
+
+            return redirect()->route('user.index')->with('success', 'User created successfully.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create user: ' . $e->getMessage());
+            return redirect('/dashboard')->with('error', $e->getMessage());
         }
     }
 
@@ -60,11 +74,20 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        try {
+            $clientDetail = null;
+            if ($user->role === 'client') {
+                $clientDetail =  ClientDetail::where('user_id', $user->id)->first();
+            }
 
-        return Inertia::render('User/Show', [
-            'user' => $user,
-            'createdBy' => User::find($user->created_by) ?: null,
-        ]);
+            return Inertia::render('User/Show', [
+                'user' => $user,
+                'createdBy' => User::find($user->created_by) ?: null,
+                'clientDetail' => $clientDetail,
+            ]);
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -72,11 +95,20 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return Inertia::render('User/Edit', [
-            'user' => $user,
-            'roles' => array_column(Role::cases(), 'value'),
-            'currentRole' => $user->role,
-        ]);
+        try {
+            $clientDetail = null;
+            if ($user->role === 'client') {
+                $clientDetail = ClientDetail::where('user_id', $user->id)->first();
+            }
+            return Inertia::render('User/Edit', [
+                'user' => $user,
+                'roles' => array_column(Role::cases(), 'value'),
+                'currentRole' => $user->role,
+                'clientDetail' => $clientDetail,
+            ]);
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -87,9 +119,26 @@ class UserController extends Controller
         try {
             $updateddata = $request->validated();
             $this->userRepository->updateUser($user->id, $updateddata);
-            return redirect()->route('dashboard')->with('success', 'User updated successfully.');
+
+            // Log activity
+            ActivityRepository::log('user', 'updated', $user->id, $user->name);
+
+            // Handle client details if user is client
+            if (($updateddata['role'] ?? $user->role) === 'client') {
+                $clientData = [
+                    'user_id' => $user->id,
+                    'company_name' => $request->input('company_name'),
+                    'company_number' => $request->input('company_number'),
+                ];
+                ClientDetail::updateOrCreate(
+                    ['user_id' => $user->id],
+                    $clientData
+                );
+            }
+
+            return redirect()->route('user.index')->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to update user: ' . $e->getMessage());
+            return redirect('/dashboard')->with('error', $e->getMessage());
         }
     }
 
@@ -100,9 +149,13 @@ class UserController extends Controller
     {
         try {
             $this->userRepository->destroy($user->id);
+
+            // Log activity
+            ActivityRepository::log('user', 'deleted', $user->id, $user->name);
+
             return redirect()->route('dashboard')->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+            return redirect('/dashboard')->with('error', $e->getMessage());
         }
     }
 }
