@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, Link } from '@inertiajs/react';
 
 export default function Dashboard({ user, totalTasks, totalUsers, totalProjects, totalEmployees, totalClients, totalIssuesLast30Days, recentActivities }) {
     const { error, users } = usePage().props;
@@ -200,7 +200,10 @@ export default function Dashboard({ user, totalTasks, totalUsers, totalProjects,
                                         <h3 className="text-base font-semibold leading-6 text-gray-900">Quick Actions</h3>
                                     </div>
                                     <div className="px-6 py-4 grid grid-cols-2 gap-4">
-                                        <button className="group flex items-center space-x-3 text-left p-3 rounded-md hover:bg-gray-50">
+                                        <Link
+                                            href="/task/create"
+                                            className="group flex items-center space-x-3 text-left p-3 rounded-md hover:bg-gray-50"
+                                        >
                                             <div className="flex-shrink-0 h-8 w-8 rounded-md bg-blue-50 flex items-center justify-center">
                                                 <svg className="h-5 w-5 text-blue-600 group-hover:text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -210,8 +213,11 @@ export default function Dashboard({ user, totalTasks, totalUsers, totalProjects,
                                                 <p className="text-sm font-medium text-gray-900">New Task</p>
                                                 <p className="text-xs text-gray-500">Create a new task</p>
                                             </div>
-                                        </button>
-                                        <button className="group flex items-center space-x-3 text-left p-3 rounded-md hover:bg-gray-50">
+                                        </Link>
+                                        <Link
+                                            href="/project/create"
+                                            className="group flex items-center space-x-3 text-left p-3 rounded-md hover:bg-gray-50"
+                                        >
                                             <div className="flex-shrink-0 h-8 w-8 rounded-md bg-green-50 flex items-center justify-center">
                                                 <svg className="h-5 w-5 text-green-600 group-hover:text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2M7 7h10" />
@@ -221,7 +227,7 @@ export default function Dashboard({ user, totalTasks, totalUsers, totalProjects,
                                                 <p className="text-sm font-medium text-gray-900">New Project</p>
                                                 <p className="text-xs text-gray-500">Start a new project</p>
                                             </div>
-                                        </button>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
