@@ -70,4 +70,9 @@ class User extends Authenticatable
             'project_id'
         );
     }
+
+    public function projectsAsClient()
+    {
+        return $this->hasMany(Project::class, 'client_id');
+    }
 }

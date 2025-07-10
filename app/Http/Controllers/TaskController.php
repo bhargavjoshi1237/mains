@@ -53,13 +53,16 @@ class TaskController extends Controller
 
     public function store(TaskRequest $request): RedirectResponse
     {
+         try {
         $task = $this->taskRepository->addTask($request->validated());
         return redirect()->route('task.index')->with('success', 'Task created successfully.');
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     public function show(string $id): Response
     {
-       
         $task = $this->taskRepository->getById($id, ['project', 'assignedTo', 'createdBy']);
         return Inertia::render('Tasks/Show', [
             'task' => $task,
@@ -72,7 +75,6 @@ class TaskController extends Controller
          
         $task = $this->taskRepository->getById($id, ['project', 'assignedTo', 'createdBy']);
         $user = Auth::user();
-
         $users = $this->taskRepository->getUsersForTaskEdit($user);
 
         return Inertia::render('Tasks/Edit', [
@@ -80,10 +82,12 @@ class TaskController extends Controller
             'users' => $users,
             'statuses' => array_column(Status::cases(), 'value'),
         ]);
+        
     }
 
     public function update(TaskRequest $request, string $id): RedirectResponse
     {
+        try {
         $validatedData = $request->validated();
         $task = $this->taskRepository->update($id, [
             ...$validatedData,
@@ -92,11 +96,18 @@ class TaskController extends Controller
 
         return redirect()->route('task.show', ['task' => $task->id])
             ->with('success', 'Task updated successfully.');
+            } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 
     public function destroy(string $id): RedirectResponse
     {
+        try{
         $this->taskRepository->destroy($id);
         return redirect()->route('task.index')->with('success', 'Task deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect('/dashboard')->with('error', $e->getMessage());
+        }
     }
 }

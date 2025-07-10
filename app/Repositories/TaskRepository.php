@@ -50,9 +50,6 @@ class TaskRepository extends BaseRepository
         }
 
         if ($user->role === \App\Enums\Role::Client->value) {
-            $projectIds = $this->model->newQuery()
-                ->where('client_id', $user->id)
-                ->pluck('id');
             $projectIds = $user->projectsAsClient()->pluck('projects.id');
             return $this->newQuery()
                 ->with($relations)
@@ -61,7 +58,6 @@ class TaskRepository extends BaseRepository
         }
 
         if ($user->role === \App\Enums\Role::Employee->value) {
-
             $projectIds = $user->projectsAsEmployee()->pluck('projects.id');
             return $this->newQuery()
                 ->with($relations)
@@ -102,8 +98,16 @@ class TaskRepository extends BaseRepository
         if ($currentUser->role === Role::Admin->value) {
             return $this->userRepository->getAll();
         } else {
-            return $currentUser->projectsAsEmployee()->with('employees')->get()->pluck('employees')->flatten()->unique('id');
+            $employeeIds = $currentUser->projectsAsEmployee()
+                ->with('employees')
+                ->get()
+                ->pluck('employees')
+                ->flatten()
+                ->unique('id')
+                ->pluck('id')
+                ->all();
+
+            return User::whereIn('id', $employeeIds)->get();
         }
     }
 }
-           

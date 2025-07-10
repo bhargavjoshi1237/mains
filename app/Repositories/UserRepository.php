@@ -8,21 +8,17 @@ use App\Enums\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Str;
-use App\Repositories\ClientDetailsRepository;
-use App\Models\ClientDetail;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
+use App\Repositories\ClientDetailsRepository;
 
 class UserRepository extends BaseRepository
 {
     protected $user;
-    protected ClientDetailsRepository $clientDetailsRepository;
 
-    public function __construct(User $user, ClientDetailsRepository $clientDetailsRepository)
+    public function __construct(User $user)
     {
         parent::__construct($user);
         $this->user = $user;
-        $this->clientDetailsRepository = $clientDetailsRepository;
     }
 
     public function addUser(array $newuserdata)
@@ -39,67 +35,47 @@ class UserRepository extends BaseRepository
             'password' => Hash::make($newuserdata['password']),
         ];
 
-        $user = $this->store($newuser);
+        $user = $this->user->create($newuser);
+        $savedUser = $this->user->where('email', $newuserdata['email'])->first();
 
         if ($newuserdata['role'] === Role::Client->value) {
-            $this->clientDetailsRepository->store([
+            $clientDetailsRepo = app(ClientDetailsRepository::class);
+            $clientDetailsRepo->store([
                 'id' => Str::uuid()->toString(),
-                'user_id' => (string) $user->id,
+                'user_id' => (string) $savedUser->id,
                 'company_name' => $newuserdata['client_company_name'] ?? null,
                 'company_number' => $newuserdata['client_company_number'] ?? null,
             ]);
         }
 
-        return $user;
+        return $savedUser;
     }
 
     public function updateUser($id, array $userdata)
     {
-        $user = $this->getById($id);
+        $user = $this->user->find($id);
         if (!$user) {
             return null;
         }
-        $authenticatedUser = Auth::user();
-
+        $authenticatedUserxx = Auth::user();
         $updateData = [
             'name' => $userdata['name'] ?? $user->name,
             'email' => $userdata['email'] ?? $user->email,
             'role' => $userdata['role'] ?? $user->role,
-            'updated_by' => $authenticatedUser->id,
+            'updated_by' => $authenticatedUserxx->id,
         ];
-
-        if (!empty($userdata['password'])) {
-            $updateData['password'] = Hash::make($userdata['password']);
-        }
         $user->update($updateData);
-
-        if (($userdata['role'] ?? $user->role) === Role::Client->value) {
-            ClientDetail::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'user_id' => $user->id,
-                    'company_name' => $userdata['company_name'] ?? null,
-                    'company_number' => $userdata['company_number'] ?? null,
-                ]
-            );
-        } else {
-            ClientDetail::where('user_id', $user->id)->delete();
-        }
         return $user->fresh();
     }
 
-    public function getClientDetailForUser(string $userId): ?ClientDetail
+    public function getEmployees()
     {
-        return ClientDetail::where('user_id', $userId)->first();
+        return $this->user->where('role', \App\Enums\Role::Employee->value)->get();
     }
 
-    public function getClients(): EloquentCollection
+    public function getClientDetailForUser($userId)
     {
-        return $this->newQuery()->where('role', Role::Client->value)->get(['id', 'name']);
-    }
-
-    public function getEmployees(): EloquentCollection
-    {
-        return $this->newQuery()->where('role', Role::Employee->value)->get(['id', 'name']);
+        $clientDetailsRepo = app(\App\Repositories\ClientDetailsRepository::class);
+        return $clientDetailsRepo->getByAttribute('user_id', $userId);
     }
 }

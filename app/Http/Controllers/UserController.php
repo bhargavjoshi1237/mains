@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Enums\Role;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -14,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Repositories\ActivityRepository;
 use App\Repositories\ClientDetailsRepository;
+ 
 
 
 class UserController extends Controller
@@ -25,6 +25,7 @@ class UserController extends Controller
     {
         $this->userRepository = $userRepository;
         $this->clientDetailsRepository = $clientDetailsRepository;
+
     }
 
     public function index()
@@ -36,14 +37,14 @@ class UserController extends Controller
 
     public function create()
     {
-            $clients = $this->userRepository->getClients();
-            $employees = $this->userRepository->getEmployees();
+        $clients = $this->userRepository->newQuery()->where('role', Role::Client->value)->get(['id', 'name']);
+        $employees = $this->userRepository->newQuery()->where('role', Role::Employee->value)->get(['id', 'name']);
 
-            return Inertia::render('User/Create', [
-                'roles' => array_column(Role::cases(), 'value'),
-                'clients' => $clients,
-                'employees' => $employees,
-            ]);
+        return Inertia::render('User/Create', [
+            'roles' => array_column(Role::cases(), 'value'),
+            'clients' => $clients,
+            'employees' => $employees,
+        ]);
     }
 
 
@@ -59,42 +60,40 @@ class UserController extends Controller
     }
 
 
-    public function show(User $user)
+    public function show($id)
     {
-            $clientDetail = $this->userRepository->getClientDetailForUser($user->id);
+        $user = $this->userRepository->getById($id);
+        $clientDetail = $this->userRepository->getClientDetailForUser($user->id);
+        $createdBy = $user->created_by ? $this->userRepository->getById($user->created_by) : null;
 
-            $createdBy = $user->created_by ? $this->userRepository->getById($user->created_by) : null;
-
-            return Inertia::render('User/Show', [
-                'user' => $user,
-                'createdBy' => $createdBy,
-                'clientDetail' => $clientDetail,
-            ]);
+        return Inertia::render('User/Show', [
+            'user' => $user,
+            'createdBy' => $createdBy,
+            'clientDetail' => $clientDetail,
+        ]);
     }
 
 
-    public function edit(User $user)
+    public function edit($id)
     {
-        try {
-            $clientDetail = $this->userRepository->getClientDetailForUser($user->id);
-            $employees = $this->userRepository->getEmployees();
+        $user = $this->userRepository->getById($id);
+        $clientDetail = $this->userRepository->getClientDetailForUser($user->id);
+        $employees = $this->userRepository->newQuery()->where('role', Role::Employee->value)->get(['id', 'name']);
 
-            return Inertia::render('User/Edit', [
-                'user' => $user,
-                'roles' => array_column(Role::cases(), 'value'),
-                'currentRole' => $user->role,
-                'clientDetail' => $clientDetail,
-                'employees' => $employees,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        return Inertia::render('User/Edit', [
+            'user' => $user,
+            'roles' => array_column(Role::cases(), 'value'),
+            'currentRole' => $user->role,
+            'clientDetail' => $clientDetail,
+            'employees' => $employees,
+        ]);
     }
 
 
-    public function update(UserRequest $request, User $user)
+    public function update(UserRequest $request, $id)
     {
         try {
+            $user = $this->userRepository->getById($id);
             $updateddata = $request->validated();
             $updateddata['company_name'] = $request->input('company_name');
             $updateddata['company_number'] = $request->input('company_number');
@@ -108,10 +107,10 @@ class UserController extends Controller
     }
 
 
-    public function destroy(User $user)
+    public function destroy($id)
     {
         try {
-            $this->userRepository->destroy($user->id);
+            $this->userRepository->destroy($id);
             return redirect()->route('user.index')->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
             return redirect('/dashboard')->with('error', $e->getMessage());

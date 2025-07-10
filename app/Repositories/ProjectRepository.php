@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use App\Enums\Role;
 
 class ProjectRepository extends BaseRepository
 {
@@ -26,11 +27,6 @@ class ProjectRepository extends BaseRepository
         })->values()->all();
     }
 
-    public function getByClientId($clientId)
-    {
-        return $this->model->where('client_id', $clientId)->with(['employees:id,name'])->get();
-    }
-
     public function getByEmployeeId($employeeId)
     {
         return $this->model
@@ -39,5 +35,23 @@ class ProjectRepository extends BaseRepository
             })
             ->with(['employees:id,name'])
             ->get();
+    }
+
+    public function getProjectsForUser($user)
+    {
+        if ($user->role ===  Role::Admin->value) {
+            return $this->getAll(['client:id,name', 'createdByUser:id,name']);
+        } elseif ($user->role ===  Role::Client->value) {
+            return $this->newQuery()
+                ->where('client_id', $user->id)
+                ->with(['client:id,name', 'createdByUser:id,name'])
+                ->get();
+        } elseif ($user->role ===  Role::Employee->value) {
+            return $user->projectsAsEmployee()
+                ->with(['client:id,name', 'createdByUser:id,name'])
+                ->get();
+        } else {
+            return collect();
+        }
     }
 }

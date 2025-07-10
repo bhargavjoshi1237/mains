@@ -17,10 +17,10 @@ class IssueRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'nullable|string|max:255',
-            'project_id' => 'required|uuid|exists:projects,id',
-            'assigned_to' => 'nullable|uuid|exists:users,id',
+            'project_id' => 'required|string',
+            'assigned_to' => 'nullable|string',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date',
         ];
     }
 }
