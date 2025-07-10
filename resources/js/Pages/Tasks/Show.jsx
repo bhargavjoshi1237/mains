@@ -1,6 +1,9 @@
 import React from "react";
 import { usePage, Head, Link } from "@inertiajs/react";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import BackToTasksButton from "./LoseComponents/BackToTasksButton";
+import StatusBadge from "./LoseComponents/StatusBadge";
+import TaskStatusIcon from "./LoseComponents/TaskStatusIcon";
 
 export default function Show() {
   const { task, user_role } = usePage().props;
@@ -34,12 +37,7 @@ export default function Show() {
           <h2 className="text-xl font-semibold leading-tight text-gray-800">
             Task Details
           </h2>
-          <Link
-            href="/task"
-            className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-          >
-            Back to Tasks
-          </Link>
+          <BackToTasksButton />
         </div>
       }
     >
@@ -51,17 +49,12 @@ export default function Show() {
               {/* Task Header */}
               <div className="flex items-start gap-4 mb-8">
                 <div className={`flex-shrink-0 h-12 w-12 rounded-lg flex items-center justify-center ${getStatusColors(task.status).bg} ${getStatusColors(task.status).border}`}>
-                  <svg className={`h-5 w-5 ${getStatusColors(task.status).text}`} fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5.75 12.8665L8.33995 16.4138C9.15171 17.5256 10.8179 17.504 11.6006 16.3715L18.25 6.75"/>
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19.25 12C19.25 16.004 15.004 19.25 11 19.25C6.99602 19.25 4.75 16.004 4.75 12C4.75 7.99602 7.99602 4.75 11 4.75C15.004 4.75 19.25 7.99602 19.25 12Z"/>
-                  </svg>
+                  <TaskStatusIcon colorClass={getStatusColors(task.status).text} />
                 </div>
                 <div className="flex-1">
                   <h1 className="text-2xl font-bold text-gray-900">{task.name}</h1>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColors(task.status).bg} ${getStatusColors(task.status).text}`}>
-                      {task.status.replace('_', ' ')}
-                    </span>
+                    <StatusBadge status={task.status} />
                     <span className="text-xs text-gray-500">
                       Created {formatDate(task.created_at)}
                     </span>
@@ -165,12 +158,7 @@ export default function Show() {
                     Delete Task
                   </Link>
                 )}
-                <Link
-                  href="/task"
-                  className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
-                >
-                  Back to Tasks
-                </Link>
+                <BackToTasksButton />
               </div>
             </div>
           </div>

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, usePage, Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ProjectIconHeader from './LoseComponents/ProjectIconHeader';
+import EmployeeAvatar from './LoseComponents/EmployeeAvatar';
 
 export default function Show() {
   const { project, tasks = [], employees = [], user_role } = usePage().props;
@@ -66,17 +68,11 @@ export default function Show() {
         <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
             <div className="p-6 sm:p-8">
-              <div className="flex items-start mb-6">
-                <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center shadow border border-blue-100 mr-4">
-                  <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <rect x="4" y="4" width="16" height="16" rx="4" fill="#3b82f6" />
-                    <rect x="7" y="7" width="10" height="10" rx="2" fill="#fff" opacity="0.5" />
-                  </svg>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-                  <p className="text-gray-600">{project.description}</p>
-                </div>
+              <div className="mb-6">
+                <ProjectIconHeader
+                  title={project.name}
+                  description={project.description}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -169,12 +165,7 @@ export default function Show() {
                     {employees.map(emp => (
                       <li key={emp.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-                            <svg className="h-5 w-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 14.75C8.28 14.75 5.25 15.23 5.25 17.5V19.75H18.75V17.5C18.75 15.23 15.72 14.75 12 14.75Z" />
-                              <path d="M12 13C14.14 13 15.75 11.39 15.75 9.25C15.75 7.11 14.14 5.5 12 5.5C9.86 5.5 8.25 7.11 8.25 9.25C8.25 11.39 9.86 13 12 13Z" />
-                            </svg>
-                          </div>
+                          <EmployeeAvatar name={emp.name} />
                           <div>
                             <h3 className="font-medium text-gray-900">{emp.name}</h3>
                             <p className="text-sm text-gray-500">{emp.position ?? 'Employee'}</p>

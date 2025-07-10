@@ -1,17 +1,10 @@
 import React from 'react';
 import { Link, usePage, Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import StatusBadge from "./LoseComponents/StatusBadge";
 
 export default function Index() {
   const { tasks, user_role } = usePage().props;
-
-  const statusColors = {
-    completed: 'bg-green-100 text-green-800',
-    in_progress: 'bg-blue-100 text-blue-800',
-    pending: 'bg-yellow-100 text-yellow-800',
-    cancelled: 'bg-red-100 text-red-800',
-    default: 'bg-gray-100 text-gray-800'
-  };
 
   return (
     <AuthenticatedLayout
@@ -52,11 +45,7 @@ export default function Index() {
                         <h3 className="text-base font-medium text-gray-900 line-clamp-1">
                           {task.name}
                         </h3>
-                        <span className={`flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium ${
-                          statusColors[task.status] || statusColors.default
-                        }`}>
-                          {task.status.replace('_', ' ')}
-                        </span>
+                        <StatusBadge status={task.status} />
                       </div>
 
                       <p className="text-sm text-gray-600 line-clamp-2 mt-2 mb-3">

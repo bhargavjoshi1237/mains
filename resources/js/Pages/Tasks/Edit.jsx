@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { usePage, router, Head, Link } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import BackToTasksButton from "./LoseComponents/BackToTasksButton";
+import TaskStatusIcon from "./LoseComponents/TaskStatusIcon";
 
 export default function Edit() {
     const { task, users = [], statuses = [] } = usePage().props;
@@ -42,12 +44,7 @@ export default function Edit() {
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                         Edit Task
                     </h2>
-                    <Link 
-                        href={`/task/${task.id}`}
-                        className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
-                    >
-                        Back to Task
-                    </Link>
+                    <BackToTasksButton href={`/task/${task.id}`}>Back to Task</BackToTasksButton>
                 </div>
             }
         >
@@ -61,10 +58,7 @@ export default function Edit() {
                         <div className="p-6 sm:p-8">
                             <div className="flex items-center mb-6">
                                 <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100 mr-3">
-                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="#3b82f6" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5.75 12.8665L8.33995 16.4138C9.15171 17.5256 10.8179 17.504 11.6006 16.3715L18.25 6.75"/>
-                                        <path stroke="#3b82f6" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19.25 12C19.25 16.004 15.004 19.25 11 19.25C6.99602 19.25 4.75 16.004 4.75 12C4.75 7.99602 7.99602 4.75 11 4.75C15.004 4.75 19.25 7.99602 19.25 12Z"/>
-                                    </svg>
+                                    <TaskStatusIcon colorClass="text-blue-500" />
                                 </div>
                                 <h1 className="text-xl font-semibold text-gray-900">Edit Task</h1>
                             </div>
