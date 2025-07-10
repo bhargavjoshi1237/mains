@@ -3,7 +3,7 @@ import { Link, usePage, Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Show() {
-  const { project, userauth, user_role } = usePage().props;
+  const { project, tasks = [], employees = [], user_role } = usePage().props;
 
   if (!project) {
     return (
@@ -27,29 +27,30 @@ export default function Show() {
             Project Details
           </h2>
           <div className="flex space-x-2">
-            {userauth?.role === 'admin' && (
-              <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  router.delete(`/project/${project.id}`);
-                }}
-                className="mr-6"
-              >
-                <button
-                  type="submit"
+            {/* Hide Delete and Edit Project Button for employee and client */}
+            {user_role !== 'employee' && user_role !== 'client' && (
+              <>
+                <Link
+                  href={`/project/${project.id}`}
+                  method="delete"
+                  as="button"
                   className="px-4 py-2 bg-red-600 border border-red-600 text-white rounded hover:bg-red-700 transition"
+                  onClick={e => {
+                    if (!window.confirm('Are you sure you want to delete this project?')) {
+                      e.preventDefault();
+                    }
+                  }}
                 >
                   Delete Project
-                </button>
-              </form>
+                </Link>
+                <Link
+                  href={`/project/${project.id}/edit`}
+                  className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  Edit Project
+                </Link>
+              </>
             )}
-            {userauth?.role === 'admin' && (
-               <Link
-              href={`/project/${project.id}/edit`}
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
-            >
-              Edit Project
-            </Link> )}
             <Link
               href="/project"
               className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
@@ -112,6 +113,77 @@ export default function Show() {
                     <p className="mt-1 text-sm text-gray-900">{new Date(project.updated_at).toLocaleString()}</p>
                   </div>
                 </div>
+              </div>
+
+              
+                      <div className="mb-8">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
+                        {(user_role === 'employee' || user_role === 'admin') && (
+                        <Link 
+                          href={`/task/create?project_id=${project.id}`}
+                          className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                        >
+                          + Add Task
+                        </Link>
+                        )}
+                      </div>
+                      {tasks.length === 0 ? (
+                        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                        No tasks for this project yet.
+                        </div>
+                      ) : (
+                        <ul className="space-y-3">
+                        {tasks.map(task => (
+                          <li key={task.id}>
+                          <Link href={`/task/${task.id}`} className="block">
+                            <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all">
+                            <div className="flex justify-between">
+                              <h3 className="font-medium text-gray-900">{task.name}</h3>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {task.status}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-sm text-gray-600 line-clamp-2">{task.description}</p>
+                            <div className="mt-2 flex items-center text-xs text-gray-500 space-x-4">
+                              <span>Assigned: {task.assigned_to?.name ?? '-'}</span>
+                              <span>Created: {task.created_by?.name ?? '-'}</span>
+                            </div>
+                            </div>
+                          </Link>
+                          </li>
+                        ))}
+                        </ul>
+                      )}
+                      </div>
+
+                      {/* Employees Section */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Assigned Employees</h2>
+                {employees.length === 0 ? (
+                  <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                    No employees assigned to this project yet.
+                  </div>
+                ) : (
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {employees.map(emp => (
+                      <li key={emp.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                            <svg className="h-5 w-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 14.75C8.28 14.75 5.25 15.23 5.25 17.5V19.75H18.75V17.5C18.75 15.23 15.72 14.75 12 14.75Z" />
+                              <path d="M12 13C14.14 13 15.75 11.39 15.75 9.25C15.75 7.11 14.14 5.5 12 5.5C9.86 5.5 8.25 7.11 8.25 9.25C8.25 11.39 9.86 13 12 13Z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900">{emp.name}</h3>
+                            <p className="text-sm text-gray-500">{emp.position ?? 'Employee'}</p>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           </div>
