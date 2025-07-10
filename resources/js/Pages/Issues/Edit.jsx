@@ -35,9 +35,6 @@ export default function Edit() {
             <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 <div className="bg-white rounded-lg border border-gray-200 shadow-xs overflow-hidden">
                     <div className="p-6 sm:p-8">
-                        {/* Show all errors at the top */}
-                         
-
                         <div className="mb-6">
                             <h3 className="text-lg font-medium text-gray-900">Edit Issue Details</h3>
                             <p className="mt-1 text-sm text-gray-500">

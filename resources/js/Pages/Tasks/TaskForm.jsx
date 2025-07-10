@@ -85,6 +85,22 @@ export default function TaskForm({ initialValues, projects, users, onSubmit, sub
               ))}
             </select>
           </div>
+          {/* Project */}
+          <div>
+            <label className="block mb-1 font-medium">Project</label>
+            <select
+              name="project_id"
+              className="w-full border rounded px-3 py-2"
+              value={values.project_id}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Project</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
           {/* Dates */}
           <div className="flex gap-4">
             <div className="flex-1">

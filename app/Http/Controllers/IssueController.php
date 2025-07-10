@@ -9,16 +9,19 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use App\Http\Requests\IssueRequest;
 
 class IssueController extends Controller
 {
+    public function __construct() {}
+
     public function index()
     {
         try {
             $issues = Issue::with(['project', 'assignedTo', 'createdBy'])->get();
+            $user = auth()->user();
             return Inertia::render('Issues/Index', [
                 'issues' => $issues,
+                'user_role' => $user ? $user->role : null,
             ]);
         } catch (\Exception $e) {
             return redirect('/dashboard')->with('error', $e->getMessage());
@@ -39,10 +42,18 @@ class IssueController extends Controller
         }
     }
 
-    public function store(IssueRequest $request)
+    public function store(Request $request)
     {
         try {
-            $data = $request->validated();
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'status' => 'nullable|string|max:255',
+                'project_id' => 'required|string',
+                'assigned_to' => 'nullable|string',
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date',
+            ]);
             $data['id'] = (string) Str::uuid();
             $data['created_by'] = Auth::id();
             $issue = Issue::create($data);
@@ -56,8 +67,10 @@ class IssueController extends Controller
     {
         try {
             $issue->load(['project', 'assignedTo', 'createdBy']);
+            $user = auth()->user();
             return Inertia::render('Issues/Show', [
                 'issue' => $issue,
+                'user_role' => $user ? $user->role : null,
             ]);
         } catch (\Exception $e) {
             return redirect('/dashboard')->with('error', $e->getMessage());
@@ -80,10 +93,18 @@ class IssueController extends Controller
         }
     }
 
-    public function update(IssueRequest $request, Issue $issue)
+    public function update(Request $request, Issue $issue)
     {
         try {
-            $data = $request->validated();
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'status' => 'nullable|string|max:255',
+                'project_id' => 'required|string',
+                'assigned_to' => 'nullable|string',
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date',
+            ]);
             $data['updated_by'] = Auth::id();
             $issue->update($data);
             return redirect()->route('issues.show', $issue->id)->with('success', 'Issue updated successfully.');
@@ -102,4 +123,3 @@ class IssueController extends Controller
         }
     }
 }
-      

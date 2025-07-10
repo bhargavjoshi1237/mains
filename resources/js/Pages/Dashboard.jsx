@@ -104,14 +104,10 @@ export default function Dashboard({ user, totalTasks, totalUsers, totalProjects,
                             <div className="px-6 py-5 border-b border-gray-200">
                                 <h3 className="text-base font-semibold leading-6 text-gray-900">Recent Activities</h3>
                             </div>
-                            {/* Make this container scrollable and set a max height */}
-                            <div className="divide-y divide-gray-200 overflow-y-auto" style={{ maxHeight: 400 }}>
+                            <div className="divide-y divide-gray-200">
                                 {recentActivities && recentActivities.length > 0 ? (
                                     recentActivities.map((activity, idx) => (
-                                        <div
-                                            key={activity.id || idx}
-                                            className="px-4 py-2 rounded-xl bg-gray-50 mt-2 ml-4 mr-4"
-                                        >
+                                        <div key={activity.id || idx} className="px-4 py-2 rounded-xl  bg-gray-100 mt-4 ml-4 mr-4">
                                             <div className="flex items-center">
                                                 <div className="flex-shrink-0">
                                                     <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
@@ -153,8 +149,8 @@ export default function Dashboard({ user, totalTasks, totalUsers, totalProjects,
                                 )}
                             </div>
                             {recentActivities && recentActivities.length > 0 && (
-                                <div className="px-6 py-3   text-right text-sm">
-                                    <a href="#" className="font-medium text-gray-600 hover:text-gray-900">
+                                <div className="px-6 py-3 bg-gray-50 text-right text-sm">
+                                    <a href="/activity" className="font-medium text-gray-600 hover:text-gray-900">
                                         View all activities →
                                     </a>
                                 </div>
@@ -165,8 +161,8 @@ export default function Dashboard({ user, totalTasks, totalUsers, totalProjects,
                         {user?.role === 'admin' && (
                             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 {/* Employee Overview Card */}
-                                <div className="bg-white rounded-lg   overflow-hidden">
-                                    <div className="px-6 py-5   border-gray-200">
+                                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                    <div className="px-6 py-5 border-b border-gray-200">
                                         <h3 className="text-base font-semibold leading-6 text-gray-900">Employee Overview</h3>
                                     </div>
                                     <div className="px-6 py-4">

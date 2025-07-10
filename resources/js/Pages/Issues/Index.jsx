@@ -3,7 +3,7 @@ import { Link, usePage, Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Index() {
-    const { issues } = usePage().props;
+    const { issues, user_role } = usePage().props;
 
     return (
         <AuthenticatedLayout
@@ -12,12 +12,15 @@ export default function Index() {
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                         Issues
                     </h2>
-                    <Link
-                        href="/issues/create"
-                        className="ml-auto px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800"
-                    >
-                        Create Issue
-                    </Link>
+                    {/* Only show Create Issue if not client */}
+                    {user_role !== 'client' && (
+                        <Link
+                            href="/issues/create"
+                            className="ml-auto px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800"
+                        >
+                            Create Issue
+                        </Link>
+                    )}
                 </div>
             }
         >

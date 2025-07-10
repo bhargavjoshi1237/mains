@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\ClientDetail;
@@ -24,5 +25,3 @@ class ClientDetailsRepository extends BaseRepository
         return $this->model->create($data);
     }
 }
-
-

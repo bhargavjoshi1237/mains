@@ -39,22 +39,12 @@ export default function Create() {
           <h2 className="text-xl font-semibold leading-tight text-gray-800">
             Create Project
           </h2>
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              className="px-4 py-2 bg-green-400 text-white text-sm font-medium rounded-md opacity-50 cursor-not-allowed"
-              disabled
-              title="Create the project first to add tasks"
-            >
-              Create Task
-            </button>
-            <Link
-              href="/project"
-              className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
-            >
-              Back to Projects
-            </Link>
-          </div>
+          <Link
+            href="/project"
+            className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+          >
+            Back to Projects
+          </Link>
         </div>
       }
     >
@@ -96,7 +86,7 @@ export default function Create() {
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name
+                      Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"

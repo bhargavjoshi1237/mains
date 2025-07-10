@@ -2,179 +2,101 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
-use App\Models\Project;
-use Illuminate\Http\Request;
 use App\Enums\Status;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
 use App\Enums\Role;
-use App\Models\User;
 use App\Http\Requests\TaskRequest;
-use App\Repositories\TaskRepository;
 use App\Repositories\ActivityRepository;
-
+use App\Repositories\TaskRepository;
+use App\Repositories\UserRepository; 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response;
+ 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function __construct(public TaskRepository $taskRepository)
-    {
-        
-        
-    }
-    public function index()
-    {
-        try {
-            $user = Auth::user();
-            if ($user->role === Role::Admin->value) {
-                $tasks = Task::with(['project', 'assignedTo', 'createdBy'])->get();
-            } elseif ($user->role === Role::Client->value) {
-                $projectIds = Project::where('client_id', $user->id)->pluck('id');
-                $tasks = Task::with(['project', 'assignedTo'])
-                    ->whereIn('project_id', $projectIds)
-                    ->get();
-            } elseif ($user->role === Role::Employee->value) {
-                $projectIds = $user->projectsAsEmployee()->pluck('projects.id');
-                $tasks = Task::with(['project', 'assignedTo'])
-                    ->whereIn('project_id', $projectIds)
-                    ->get();
-            } else {
-                $tasks = collect();
-            }
+    protected TaskRepository $taskRepository;
+    protected UserRepository $userRepository;  
 
-            return Inertia::render('Tasks/Index', [
-                'tasks' => $tasks,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+    public function __construct(TaskRepository $taskRepository, UserRepository $userRepository)
+    {
+        $this->taskRepository = $taskRepository;
+        $this->userRepository = $userRepository;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(): Response
     {
-        try {
-            $users = User::all();
-            $statuses = array_column(Status::cases(), 'value');
-            $user = Auth::user();
-
-            $projects = $user->role === Role::Admin->value
-                ? Project::with(['employees:id,name'])->get()
-                : $user->projectsAsEmployee()->with(['employees:id,name'])->get();
-        
-            $projectsArr = $projects->map(function ($project) {
-                $arr = $project->toArray();
-                $arr['employees'] = collect($arr['employees'] ?? [])->values()->all();
-                return $arr;
-            })->values()->all();
-
-            return Inertia::render('Tasks/Create', [
-                'users' => $users,
-                'employees' => $user->role === Role::Admin->value ?
-                    User::where('role', Role::Employee->value)->get() :
-                    $user->projectsAsEmployee()->with('users')->get()->pluck('users')->flatten(),
-                'projects' => $projectsArr,
-                'statuses' => $statuses,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        $user = Auth::user();
+        $tasks = $this->taskRepository->getTasksForUser($user);
+        return Inertia::render('Tasks/Index', [
+            'tasks' => $tasks,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(TaskRequest $request)
+    public function create(): Response
     {
-        try {
-            $repo = new TaskRepository(new Task());
-            $data = $request->validated();
+        $user = Auth::user();
+        $statuses = array_column(Status::cases(), 'value');
 
-            $task = $repo->addTask($data);
+        $projectsArr = $this->taskRepository->getProjectsForTaskCreation($user);
+       
+        $allUsers = $this->userRepository->getAll();
+        $employees = $this->taskRepository->getAllEmployees();
 
-            // Log activity
-            ActivityRepository::log('task', 'created', $task->id, $task->name);
-
-            return redirect()->route('task.index')->with('success', 'Task created successfully.');
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        return Inertia::render('Tasks/Create', [
+            'users' => $allUsers,
+            'employees' => $employees,
+            'projects' => $projectsArr,
+            'statuses' => $statuses,
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Task $task)
+    public function store(TaskRequest $request): RedirectResponse
     {
-        try {
-            $user = Auth::user();
-            $task->load(['project', 'assignedTo', 'createdBy']);
-            return Inertia::render('Tasks/Show', [
-                'task' => $task,
-                'user_role' => $user->role,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        $task = $this->taskRepository->addTask($request->validated());
+        return redirect()->route('task.index')->with('success', 'Task created successfully.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Task $task)
+    public function show(string $id): Response
     {
-        try {
-            $task->load(['project', 'assignedTo', 'createdBy']);
-            $users = Auth::user()->role === Role::Admin->value
-                ? User::all()
-                : Auth::user()->projectsAsEmployee()->with('employees')->get()->pluck('employees')->flatten();
-            return Inertia::render('Tasks/Edit', [
-                'task' => $task,
-                'users' => $users,
-                'statuses' => array_column(Status::cases(), 'value'),
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+       
+        $task = $this->taskRepository->getById($id, ['project', 'assignedTo', 'createdBy']);
+        return Inertia::render('Tasks/Show', [
+            'task' => $task,
+            'user_role' => Auth::user()->role,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(TaskRequest $request, Task $task)
+    public function edit(string $id): Response
     {
-        try {
-            $repo = new TaskRepository(new Task());
-            $updatedTask = $repo->updateTask($task->id, $request->validated());
+         
+        $task = $this->taskRepository->getById($id, ['project', 'assignedTo', 'createdBy']);
+        $user = Auth::user();
 
-            // Log activity
-            ActivityRepository::log('task', 'updated', $updatedTask->id, $updatedTask->name);
+        $users = $this->taskRepository->getUsersForTaskEdit($user);
 
-            return redirect()->route('task.show', ['task' => $updatedTask->id])->with('success', 'Task updated successfully.');
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        return Inertia::render('Tasks/Edit', [
+            'task' => $task,
+            'users' => $users,
+            'statuses' => array_column(Status::cases(), 'value'),
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Task $task)
+    public function update(TaskRequest $request, string $id): RedirectResponse
     {
-        try {
-            $repo = new TaskRepository(new Task());
-            $repo->destroy($task->id);
+        $validatedData = $request->validated();
+        $task = $this->taskRepository->update($id, [
+            ...$validatedData,
+            'updated_by' => Auth::id()
+        ]);
 
-            // Log activity
-            ActivityRepository::log('task', 'deleted', $task->id, $task->name);
+        return redirect()->route('task.show', ['task' => $task->id])
+            ->with('success', 'Task updated successfully.');
+    }
 
-            return redirect()->route('task.index')->with('success', 'Task deleted successfully.');
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+    public function destroy(string $id): RedirectResponse
+    {
+        $this->taskRepository->destroy($id);
+        return redirect()->route('task.index')->with('success', 'Task deleted successfully.');
     }
 }

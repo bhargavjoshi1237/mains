@@ -4,6 +4,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\RoleCheck;
+use App\Http\Middleware\CheckAdmin;
+use App\Http\Middleware\CheckEmployee;
+use App\Http\Middleware\CheckClient;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         // Register middleware aliases here
         $middleware->alias([
-           'role' => RoleCheck::class
+           'rolecheck' => RoleCheck::class,
         ]);
         //
     })
@@ -35,3 +38,10 @@ return Application::configure(basePath: dirname(__DIR__))
 | These middleware may be assigned to groups or used individually.
 |
 */
+
+$app->routeMiddleware([
+    'rolecheck' => App\Http\Middleware\RoleCheck::class,
+    'check.admin' => App\Http\Middleware\CheckAdmin::class,
+    'check.employee' => App\Http\Middleware\CheckEmployee::class,
+    'check.client' => App\Http\Middleware\CheckClient::class,
+]);

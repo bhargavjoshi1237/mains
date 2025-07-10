@@ -3,58 +3,107 @@
 namespace App\Repositories;
 
 use App\Models\Task;
+use App\Enums\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use App\Models\Project;
+use App\Models\User;
 
 class TaskRepository extends BaseRepository
 {
-    protected $task;
 
-    public function __construct(Task $task)
-    {
+    public function __construct(
+        Task $task,
+        protected ProjectRepository $projectRepository,
+        protected UserRepository $userRepository
+    ) {
         parent::__construct($task);
-        $this->task = $task;
     }
 
-    public function addTask(array $newTaskData)
+
+    public function addTask(array $newTaskData): Task
     {
-        // Only require these two fields from request
         $requiredFields = ['name', 'project_id'];
-
-        // Check for missing required fields
-        $missingFields = [];
-        foreach ($requiredFields as $field) {
-            if (!array_key_exists($field, $newTaskData)) {
-                $missingFields[] = $field;
-            }
-        }
-
+        $missingFields = array_diff($requiredFields, array_keys($newTaskData));
         if (!empty($missingFields)) {
             throw ValidationException::withMessages([
                 'missing_fields' => 'Missing required fields: ' . implode(', ', $missingFields)
             ]);
         }
 
-        // Generate UUID for id
-        $newTaskData['id'] = Str::uuid()->toString();
-        $newTaskData['created_by'] = Auth::id();
-        $newTaskData['updated_by'] = Auth::id();
-
-        return $this->task->create($newTaskData);
+        return $this->store([
+            ...$newTaskData,
+            'id' => Str::uuid()->toString(),
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id()
+        ]);
     }
 
-    public function updateTask($id, array $updatedTaskData)
+    public function getTasksForUser($user): EloquentCollection
     {
-        $task = $this->task->findOrFail($id);
-        $updatedTaskData['updated_by'] = Auth::id();
-        $task->update($updatedTaskData);
-        return $task->refresh();
+        $relations = ['project', 'assignedTo', 'createdBy'];
+
+        if ($user->role === \App\Enums\Role::Admin->value) {
+            return $this->getAll($relations);
+        }
+
+        if ($user->role === \App\Enums\Role::Client->value) {
+            $projectIds = $this->model->newQuery()
+                ->where('client_id', $user->id)
+                ->pluck('id');
+            $projectIds = $user->projectsAsClient()->pluck('projects.id');
+            return $this->newQuery()
+                ->with($relations)
+                ->whereIn('project_id', $projectIds)
+                ->get();
+        }
+
+        if ($user->role === \App\Enums\Role::Employee->value) {
+
+            $projectIds = $user->projectsAsEmployee()->pluck('projects.id');
+            return $this->newQuery()
+                ->with($relations)
+                ->whereIn('project_id', $projectIds)
+                ->get();
+        }
+
+        return collect();
     }
 
-    public function deleteTask($id)
+
+    public function getProjectsForTaskCreation($user): array
     {
-        $task = $this->task->findOrFail($id);
-        return $task->delete();
+        // Use ProjectRepository instead of direct model
+        $projects = $user->role === Role::Admin->value
+            ? $this->projectRepository->getAll(['employees:id,name'])
+            : $user->projectsAsEmployee()->with(['employees:id,name'])->get(); // Still using user relationship here
+
+        $projectsArr = $projects->map(function ($project) {
+            $arr = $project->toArray();
+            $arr['employees'] = collect($arr['employees'] ?? [])->values()->all();
+            return $arr;
+        })->values()->all();
+
+        return $projectsArr;
+    }
+
+
+    public function getAllEmployees(): EloquentCollection
+    {
+        return $this->userRepository->newQuery()->where('role', Role::Employee->value)->get();
+    }
+
+
+    public function getUsersForTaskEdit($currentUser): EloquentCollection
+    {
+
+        if ($currentUser->role === Role::Admin->value) {
+            return $this->userRepository->getAll();
+        } else {
+            return $currentUser->projectsAsEmployee()->with('employees')->get()->pluck('employees')->flatten()->unique('id');
+        }
     }
 }
+           

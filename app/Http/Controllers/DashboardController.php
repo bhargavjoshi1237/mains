@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Activity;
 use App\Models\Task;
 use App\Models\User;

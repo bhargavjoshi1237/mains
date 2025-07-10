@@ -20,9 +20,8 @@ class ProjectController extends Controller
     protected $projects;
 
     public function __construct(ProjectRepository $projects)
-    {   
+    {
         $this->projects = $projects;
-   
     }
 
     public function index()
@@ -56,7 +55,7 @@ class ProjectController extends Controller
     public function create()
     {
         try {
-            $clients = User::where('role', 'client')->get(['id', 'name']);
+            $clients = User::where('role', Role::Client->value)->get(['id', 'name']);
             $employees = User::where('role', Role::Employee->value)->get(['id', 'name']);
             return Inertia::render('Project/Create', [
                 'clients' => $clients,
@@ -118,7 +117,7 @@ class ProjectController extends Controller
                 'tasks' => $tasks,
                 'employees' => $employees,
                 'userauth' => $user,
-                'user_role' => $user->role,
+                'user_role' => $user->role, // Pass user_role
             ]);
         } catch (\Exception $e) {
             return redirect('/dashboard')->with('error', $e->getMessage());

@@ -15,42 +15,29 @@ class ProjectRepository extends BaseRepository
         parent::__construct($project);
         $this->project = $project;
     }
-    public function addProject(array $projectData): Project
+
+    public function formatProjects($projects): array
     {
-        $user = Auth::user();
-
-
-        $projectData['created_by'] = $user->id;
-        $projectData['updated_by'] = $user->id;
-
-        $project = $this->project->create($projectData);
-        return $project;
+        return $projects->map(function ($project) {
+            return [
+                ...$project->toArray(),
+                'employees' => collect($project->employees ?? [])->values()->all()
+            ];
+        })->values()->all();
     }
 
-
-    public function updateProject(string $id, array $updatedData): bool
+    public function getByClientId($clientId)
     {
-        $project = $this->project->findOrFail($id);
-        $user = Auth::user();
-        $updatedData['updated_by'] = $user->id;
-        return $project->update($updatedData);
+        return $this->model->where('client_id', $clientId)->with(['employees:id,name'])->get();
     }
 
-
-    public function getAllProjects(): Collection
+    public function getByEmployeeId($employeeId)
     {
-        return $this->project->all();
-    }
-
-
-    public function getProjectById(string $id): Project
-    {
-        return $this->project->with('employees')->findOrFail($id);
-    }
-
-    public function deleteProject(string $id): bool
-    {
-        $project = $this->project->findOrFail($id);
-        return $project->delete();
+        return $this->model
+            ->whereHas('employees', function ($query) use ($employeeId) {
+                $query->where('users.id', $employeeId);
+            })
+            ->with(['employees:id,name'])
+            ->get();
     }
 }

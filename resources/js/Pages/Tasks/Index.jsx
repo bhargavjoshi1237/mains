@@ -20,14 +20,14 @@ export default function Index() {
           <h2 className="text-xl font-semibold leading-tight text-gray-800">
             Tasks
           </h2>
-          {(user_role === 'admin' || user_role === 'employee') && (
+        
             <Link
               href="/task/create"
               className="ml-auto px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
             >
               Create Task
             </Link>
-          )}
+         
         </div>
       }
     >
