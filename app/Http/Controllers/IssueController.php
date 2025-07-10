@@ -12,10 +12,7 @@ use Illuminate\Support\Str;
 
 class IssueController extends Controller
 {
-    public function __construct()
-    {
-         
-    }
+    public function __construct() {}
 
     public function index()
     {

@@ -42,19 +42,15 @@ Route::get('/user', [UserController::class, 'index'])->name('user.index');
 Route::get('/task', [TaskController::class, 'index'])
     ->middleware('rolecheck:admin,employee,client')
     ->name('task.index');
-Route::get('/task/{task}', [TaskController::class, 'show'])
-    ->middleware('rolecheck:admin,employee,client')
-    ->name('task.show');
-
-// Create: admin, employee
 Route::get('/task/create', [TaskController::class, 'create'])
     ->middleware('rolecheck:admin,employee')
     ->name('task.create');
 Route::post('/task', [TaskController::class, 'store'])
     ->middleware('rolecheck:admin,employee')
     ->name('task.store');
-
-// Edit/Update: admin, employee
+Route::get('/task/{task}', [TaskController::class, 'show'])
+    ->middleware('rolecheck:admin,employee,client')
+    ->name('task.show');
 Route::get('/task/{task}/edit', [TaskController::class, 'edit'])
     ->middleware('rolecheck:admin,employee')
     ->name('task.edit');
@@ -64,8 +60,6 @@ Route::put('/task/{task}', [TaskController::class, 'update'])
 Route::patch('/task/{task}', [TaskController::class, 'update'])
     ->middleware('rolecheck:admin,employee')
     ->name('task.patch');
-
-// Destroy: admin only
 Route::delete('/task/{task}', [TaskController::class, 'destroy'])
     ->middleware('rolecheck:admin')
     ->name('task.destroy');
@@ -74,46 +68,68 @@ Route::resource('task', TaskController::class)->except(['index']);
 Route::resource('issues', IssueController::class);
 
 // Allow both admin and employee to access the edit page for issues
-Route::get('/issues/{issue}/edit', [IssueController::class, 'edit'])
-    ->middleware('rolecheck:admin,employee')
-    ->name('issues.edit');
+
 Route::get('/issues/create', [IssueController::class, 'create'])
     ->middleware('rolecheck:admin,employee')
     ->name('issues.create');
 Route::get('/issues', [IssueController::class, 'index'])
     ->middleware('rolecheck:admin,employee')
     ->name('issues.index');
-    Route::get('/issues/{issue}', [IssueController::class, 'view'])
+Route::get('/issues/{issue}', [IssueController::class, 'show'])
     ->middleware('rolecheck:admin,employee')
-    ->name('issues.view');
+    ->name('issues.show');
+Route::delete('/issues/{issue}', [IssueController::class, 'destroy'])
+    ->middleware('rolecheck:admin')
+    ->name('issues.destroy');
+Route::get('/issues/{issue}/edit', [IssueController::class, 'edit'])
+    ->middleware('rolecheck:admin,employee')
+    ->name('issues.edit');
+Route::put('/issues/{issue}', [IssueController::class, 'update'])
+    ->middleware('rolecheck:admin,employee')
+    ->name('issues.update');
 
- 
 
-    // Project routes
-Route::get('/project', [ProjectController::class, 'index'])
-    ->middleware('rolecheck:admin,employee,client')
-    ->name('project.index');
-Route::get('/project/{project}', [ProjectController::class, 'show'])
-    ->middleware('rolecheck:admin,employee,client')
-    ->name('project.show');
+
+
+
 Route::get('/project/create', [ProjectController::class, 'create'])
-    ->middleware('rolecheck:admin')
+    ->middleware('rolecheck:admin,employee')
     ->name('project.create');
-Route::get('/project/{project}/edit', [ProjectController::class, 'edit'])
-    ->middleware('rolecheck:admin')
-    ->name('project.edit');
 Route::post('/project', [ProjectController::class, 'store'])
     ->middleware('rolecheck:admin')
     ->name('project.store');
+Route::get('/project', [ProjectController::class, 'index'])
+    ->middleware('rolecheck:admin,employee,client')
+    ->name('project.index');
+Route::get('/project/{project}/edit', [ProjectController::class, 'edit'])
+    ->middleware('rolecheck:admin')
+    ->name('project.edit');
 Route::put('/project/{project}', [ProjectController::class, 'update'])
     ->middleware('rolecheck:admin')
     ->name('project.update');
-Route::patch('/project/{project}', [ProjectController::class, 'update'])
-    ->middleware('rolecheck:admin')
-    ->name('project.patch');
+Route::get('/project/{project}', [ProjectController::class, 'show'])
+    ->middleware('rolecheck:admin,employee,client')
+    ->name('project.show');
 Route::delete('/project/{project}', [ProjectController::class, 'destroy'])
     ->middleware('rolecheck:admin')
     ->name('project.destroy');
 
+
+
+
+// Route::resource('project', ProjectController::class);
+
+require __DIR__ . '/auth.php';
+Route::get('/project/{project}', [ProjectController::class, 'show'])
+    ->middleware('rolecheck:admin,employee,client')
+    ->name('project.show');
+Route::delete('/project/{project}', [ProjectController::class, 'destroy'])
+    ->middleware('rolecheck:admin')
+    ->name('project.destroy');
+
+
+
+
+// Route::resource('project', ProjectController::class);
 
 require __DIR__ . '/auth.php';
