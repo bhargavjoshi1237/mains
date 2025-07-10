@@ -150,7 +150,7 @@ export default function Dashboard({ user, totalTasks, totalUsers, totalProjects,
                             </div>
                             {recentActivities && recentActivities.length > 0 && (
                                 <div className="px-6 py-3 bg-gray-50 text-right text-sm">
-                                    <a href="#" className="font-medium text-gray-600 hover:text-gray-900">
+                                    <a href="/activity" className="font-medium text-gray-600 hover:text-gray-900">
                                         View all activities →
                                     </a>
                                 </div>

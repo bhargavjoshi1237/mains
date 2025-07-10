@@ -27,7 +27,9 @@ export default function AuthenticatedLayout({ header, children }) {
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
                                     href={route('dashboard')}
-                                    active={route().current('dashboard')}
+                                    active={
+                                        route().current('dashboard')
+                                    }
                                 >
                                     Dashboard
                                 </NavLink>
@@ -36,49 +38,66 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                     <NavLink
                                         href={route('user.index')}
-                                        active={route().current('user.index')}
+                                        active={
+                                            route().current('user.index') ||
+                                            route().current('user.show') ||
+                                            route().current('user.edit') ||
+                                            route().current('user.create')
+                                        }
                                     >
                                         Users
                                     </NavLink>
-
                                 </div>
                             )}
-                           
+                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink
+                                    href={route('project.index')}
+                                    active={
+                                        route().current('project.index') ||
+                                        route().current('project.show') ||
+                                        route().current('project.edit') ||
+                                        route().current('project.create')
+                                    }
+                                >
+                                    Projects
+                                </NavLink>
+                            </div>
+                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink
+                                    href={route('task.index')}
+                                    active={
+                                        route().current('task.index') ||
+                                        route().current('task.show') ||
+                                        route().current('task.edit') ||
+                                        route().current('task.create')
+                                    }
+                                >
+                                    Tasks
+                                </NavLink>
+                            </div>
+                            {(user.role === 'admin' || user.role === 'employee') && (
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                    <NavLink
-                                        href={route('project.index')}
-                                        active={route().current('project.index')}
-                                    >
-                                        Projects
-                                    </NavLink>
-
-                                </div>
-                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                    <NavLink
-                                        href={route('task.index')}
-                                        active={
-                                            route().current('task.index') ||
-                                            route().current('task.edit') ||
-                                            route().current('task.create')
-                                        }
-                                    >
-                                        Tasks
-                                    </NavLink>
-
-                                </div>
-                            {(user.role === 'admin' || user.role === 'employee') && (<div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                     <NavLink
                                         href={route('issues.index')}
                                         active={
                                             route().current('issues.index') ||
+                                            route().current('issues.show') ||
                                             route().current('issues.edit') ||
                                             route().current('issues.create')
                                         }
                                     >
                                         Issues
                                     </NavLink>
-
-                                </div>)}
+                                </div>
+                            )}
+                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink
+                                    href={route('activity.index')}
+                                    active={route().current('activity.index')}
+                                >
+                                    Activities
+                                </NavLink>
+                            </div>
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
@@ -178,7 +197,9 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
                             href={route('dashboard')}
-                            active={route().current('dashboard')}
+                            active={
+                                route().current('dashboard')
+                            }
                         >
                             Dashboard
                         </ResponsiveNavLink>
@@ -206,6 +227,63 @@ export default function AuthenticatedLayout({ header, children }) {
                                 Log Out
                             </ResponsiveNavLink>
                         </div>
+                    </div>
+
+                    <div className="space-y-1 pb-3 pt-2">
+                        {user.role === 'admin' && (
+                            <ResponsiveNavLink
+                                href={route('user.index')}
+                                active={
+                                    route().current('user.index') ||
+                                    route().current('user.show') ||
+                                    route().current('user.edit') ||
+                                    route().current('user.create')
+                                }
+                            >
+                                Users
+                            </ResponsiveNavLink>
+                        )}
+                        <ResponsiveNavLink
+                            href={route('project.index')}
+                            active={
+                                route().current('project.index') ||
+                                route().current('project.show') ||
+                                route().current('project.edit') ||
+                                route().current('project.create')
+                            }
+                        >
+                            Projects
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('task.index')}
+                            active={
+                                route().current('task.index') ||
+                                route().current('task.show') ||
+                                route().current('task.edit') ||
+                                route().current('task.create')
+                            }
+                        >
+                            Tasks
+                        </ResponsiveNavLink>
+                        {(user.role === 'admin' || user.role === 'employee') && (
+                            <ResponsiveNavLink
+                                href={route('issues.index')}
+                                active={
+                                    route().current('issues.index') ||
+                                    route().current('issues.show') ||
+                                    route().current('issues.edit') ||
+                                    route().current('issues.create')
+                                }
+                            >
+                                Issues
+                            </ResponsiveNavLink>
+                        )}
+                        <ResponsiveNavLink
+                            href={route('activity.index')}
+                            active={route().current('activity.index')}
+                        >
+                            Activities
+                        </ResponsiveNavLink>
                     </div>
                 </div>
             </nav>

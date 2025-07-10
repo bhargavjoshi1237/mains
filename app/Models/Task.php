@@ -8,17 +8,17 @@ class Task extends Model
 {
     protected $keyType = 'string';
     protected $fillable = [
-    'id',
-    'name',
-    'description',
-    'status',
-    'project_id',
-    'assigned_to', 
-    'created_by',
-    'updated_by',
-    'start_date',
-    'end_date',
-];
+        'id',
+        'name',
+        'description',
+        'status',
+        'project_id',
+        'assigned_to',
+        'created_by',
+        'updated_by',
+        'start_date',
+        'end_date',
+    ];
     public function project()
     {
         return $this->belongsTo(Project::class, 'project_id');

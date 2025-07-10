@@ -23,7 +23,7 @@ class UserRequest extends FormRequest
         ];
 
         if ($this->isMethod('post')) {
-           
+
             $rules['email'] = 'required|email|unique:users,email';
             $rules['password'] = 'required|string|min:8';
             $rules['client_company_name'] = 'required_if:role,Client|string|nullable';

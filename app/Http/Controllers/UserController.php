@@ -153,7 +153,7 @@ class UserController extends Controller
             // Log activity
             ActivityRepository::log('user', 'deleted', $user->id, $user->name);
 
-            return redirect()->route('dashboard')->with('success', 'User deleted successfully.');
+            return redirect()->route('user.index')->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
             return redirect('/dashboard')->with('error', $e->getMessage());
         }

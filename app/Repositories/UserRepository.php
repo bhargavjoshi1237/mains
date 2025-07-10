@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories;
+
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Enums\Role;
@@ -19,11 +20,11 @@ class UserRepository extends BaseRepository
         parent::__construct($user);
         $this->user = $user;
     }
-   
+
     public function addUser(array $newuserdata)
     {
         $authenticatedUser = Auth::user();
-        
+
         $newuser = [
             'name' => $newuserdata['name'],
             'email' => $newuserdata['email'],
@@ -75,5 +76,9 @@ class UserRepository extends BaseRepository
 
         return $user->fresh();
     }
-}
 
+    public function getEmployees()
+    {
+        return $this->user->where('role', \App\Enums\Role::Employee->value)->get();
+    }
+}

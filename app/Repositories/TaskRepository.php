@@ -3,32 +3,22 @@
 namespace App\Repositories;
 
 use App\Models\Task;
+use App\Enums\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
 class TaskRepository extends BaseRepository
 {
-    protected $task;
-
     public function __construct(Task $task)
     {
         parent::__construct($task);
-        $this->task = $task;
     }
 
-    public function addTask(array $newTaskData)
+    public function addTask(array $newTaskData): Task
     {
-        // Only require these two fields from request
         $requiredFields = ['name', 'project_id'];
-
-        // Check for missing required fields
-        $missingFields = [];
-        foreach ($requiredFields as $field) {
-            if (!array_key_exists($field, $newTaskData)) {
-                $missingFields[] = $field;
-            }
-        }
+        $missingFields = array_diff($requiredFields, array_keys($newTaskData));
 
         if (!empty($missingFields)) {
             throw ValidationException::withMessages([
@@ -36,25 +26,65 @@ class TaskRepository extends BaseRepository
             ]);
         }
 
-        // Generate UUID for id
-        $newTaskData['id'] = Str::uuid()->toString();
-        $newTaskData['created_by'] = Auth::id();
-        $newTaskData['updated_by'] = Auth::id();
 
-        return $this->task->create($newTaskData);
+        return $this->store([
+            ...$newTaskData,
+            'id' => Str::uuid()->toString(),
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id()
+        ]);
     }
 
-    public function updateTask($id, array $updatedTaskData)
+    public function updateTask(string $id, array $updatedTaskData): Task
     {
-        $task = $this->task->findOrFail($id);
-        $updatedTaskData['updated_by'] = Auth::id();
-        $task->update($updatedTaskData);
-        return $task->refresh();
+
+        return $this->update($id, [
+            ...$updatedTaskData,
+            'updated_by' => Auth::id()
+        ]);
     }
 
-    public function deleteTask($id)
+    public function deleteTask(string $id): bool
     {
-        $task = $this->task->findOrFail($id);
-        return $task->delete();
+
+        return $this->destroy($id);
+    }
+
+    public function getTasksForUser($user)
+    {
+        $relations = ['project', 'assignedTo', 'createdBy'];
+
+        if ($user->role === \App\Enums\Role::Admin->value) {
+
+            return $this->getAll($relations);
+        }
+
+        if ($user->role === \App\Enums\Role::Client->value) {
+            $projectIds = $this->model->newQuery()
+                ->where('client_id', $user->id)
+                ->pluck('id');
+
+            return $this->newQuery()
+                ->with($relations)
+                ->whereIn('project_id', $projectIds)
+                ->get();
+        }
+
+        if ($user->role === \App\Enums\Role::Employee->value) {
+            $projectIds = $user->projectsAsEmployee()->pluck('projects.id');
+            return $this->newQuery()
+                ->with($relations)
+                ->whereIn('project_id', $projectIds)
+                ->get();
+        }
+
+        return collect();
+    }
+
+    public function getByIdWithRelations($id)
+    {
+        $relations = ['project', 'assignedTo', 'createdBy'];
+
+        return $this->getById($id, $relations);
     }
 }

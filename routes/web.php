@@ -6,6 +6,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IssueController;
+use App\Http\Controllers\ActivityController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -19,18 +20,24 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/activity', [ActivityController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('activity');
+
+
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/test', function () {
     return Inertia::render('Test', [
         'user' => auth()->user(),
     ]);
-})->middleware('rolecheck:Admin')->name('test');
+})->middleware('rolecheck:admin')->name('test');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/activity', [ActivityController::class, 'index'])->name('activity.index');
 });
 
 // User routes (admin only)
@@ -42,6 +49,7 @@ Route::get('/user', [UserController::class, 'index'])->name('user.index');
 Route::get('/task', [TaskController::class, 'index'])
     ->middleware('rolecheck:admin,employee,client')
     ->name('task.index');
+
 Route::get('/task/create', [TaskController::class, 'create'])
     ->middleware('rolecheck:admin,employee')
     ->name('task.create');

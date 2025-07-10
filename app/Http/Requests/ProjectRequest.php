@@ -14,7 +14,7 @@ class ProjectRequest extends FormRequest
     public function rules()
     {
         if ($this->isMethod('post')) {
-            
+
             return [
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
@@ -23,7 +23,7 @@ class ProjectRequest extends FormRequest
                 'end_date' => 'nullable|date|after_or_equal:start_date',
             ];
         } elseif ($this->isMethod('put') || $this->isMethod('patch')) {
-           
+
             return [
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',

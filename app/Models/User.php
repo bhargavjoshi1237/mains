@@ -8,9 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use App\Models\Project;
+
 class User extends Authenticatable
 {
-   
+
     use HasFactory, Notifiable;
     protected $keyType = 'string';
     /**
@@ -63,7 +64,7 @@ class User extends Authenticatable
     public function projectsAsEmployee()
     {
         return $this->belongsToMany(
-           Project::class,
+            Project::class,
             'project_employees',
             'user_id',
             'project_id'
