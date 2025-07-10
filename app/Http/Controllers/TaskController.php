@@ -22,7 +22,6 @@ class TaskController extends Controller
     public function __construct(public TaskRepository $taskRepository)
     {
         
-        
     }
     public function index()
     {

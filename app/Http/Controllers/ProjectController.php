@@ -22,7 +22,7 @@ class ProjectController extends Controller
     public function __construct(ProjectRepository $projects)
     {   
         $this->projects = $projects;
-   
+        
     }
 
     public function index()
@@ -118,7 +118,7 @@ class ProjectController extends Controller
                 'tasks' => $tasks,
                 'employees' => $employees,
                 'userauth' => $user,
-                'user_role' => $user->role,
+                'user_role' => $user->role, // Pass user_role
             ]);
         } catch (\Exception $e) {
             return redirect('/dashboard')->with('error', $e->getMessage());

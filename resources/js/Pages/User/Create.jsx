@@ -40,7 +40,7 @@ export default function Create({ roles = [] }) {
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div>
                                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Full Name
+                                    Full Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -55,7 +55,7 @@ export default function Create({ roles = [] }) {
 
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Email Address
+                                    Email Address <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="email"
@@ -72,7 +72,7 @@ export default function Create({ roles = [] }) {
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Password
+                                    Password <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="password"

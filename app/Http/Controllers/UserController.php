@@ -20,7 +20,7 @@ class UserController extends Controller
 
     public function __construct(public UserRepository $userRepository)
     {
-        $this->middleware('role:admin');
+        $this->middleware('rolecheck:admin');
     }
 
     /** 

@@ -12,12 +12,19 @@ use Illuminate\Support\Str;
 
 class IssueController extends Controller
 {
+    public function __construct()
+    {
+         
+    }
+
     public function index()
     {
         try {
             $issues = Issue::with(['project', 'assignedTo', 'createdBy'])->get();
+            $user = auth()->user();
             return Inertia::render('Issues/Index', [
                 'issues' => $issues,
+                'user_role' => $user ? $user->role : null,
             ]);
         } catch (\Exception $e) {
             return redirect('/dashboard')->with('error', $e->getMessage());
@@ -63,8 +70,10 @@ class IssueController extends Controller
     {
         try {
             $issue->load(['project', 'assignedTo', 'createdBy']);
+            $user = auth()->user();
             return Inertia::render('Issues/Show', [
                 'issue' => $issue,
+                'user_role' => $user ? $user->role : null,
             ]);
         } catch (\Exception $e) {
             return redirect('/dashboard')->with('error', $e->getMessage());
