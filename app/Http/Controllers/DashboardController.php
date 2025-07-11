@@ -2,35 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Activity;
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Project;
-use App\Models\Issue;
+use App\Repositories\ActivityRepository;
+use App\Repositories\IssueRepository;
+use App\Repositories\ProjectRepository;
+use App\Repositories\TaskRepository;
+use App\Repositories\UserRepository;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    protected $taskRepository;
+    protected $userRepository;
+    protected $projectRepository;
+    protected $issueRepository;
+    protected $activityRepository;
+
+    public function __construct(
+        TaskRepository $taskRepository,
+        UserRepository $userRepository,
+        ProjectRepository $projectRepository,
+        IssueRepository $issueRepository,
+        ActivityRepository $activityRepository
+    ) {
+        $this->taskRepository = $taskRepository;
+        $this->userRepository = $userRepository;
+        $this->projectRepository = $projectRepository;
+        $this->issueRepository = $issueRepository;
+        $this->activityRepository = $activityRepository;
+    }
+
     public function index()
     {
         try {
-            $totalTasks = Task::count();
-            $totalUsers = User::count();
-            $totalProjects = Project::count();
-            $totalEmployees = User::where('role', 'employee')->count();
-            $totalClients = User::where('role', 'client')->count();
+            $totalTasks = $this->taskRepository->countAll();
+            $totalUsers = $this->userRepository->countAll();
+            $totalProjects = $this->projectRepository->countAll();
+            $totalEmployees = $this->userRepository->newQuery()->where('role', 'employee')->count();
+            $totalClients = $this->userRepository->newQuery()->where('role', 'client')->count();
 
             // Total issues created in last 30 days
-            $totalIssuesLast30Days = Issue::where('created_at', '>=', now()->subDays(30))->count();
+            $totalIssuesLast30Days = $this->issueRepository->newQuery()
+                ->where('created_at', '>=', now()->subDays(30))
+                ->count();
 
             // Fetch only the latest 5 activities
-            $recentActivities = Activity::orderBy('created_at', 'desc')
+            $recentActivities = $this->activityRepository->newQuery()
+                ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();
 
             // Fetch all users' id and name for mapping
-            $users = User::select('id', 'name')->get();
+            $users = $this->userRepository->newQuery()->select('id', 'name')->get();
 
             return Inertia::render('Dashboard', [
                 'user' => auth()->user(),

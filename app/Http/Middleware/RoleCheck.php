@@ -19,7 +19,6 @@ class RoleCheck
         'allowed' => $user && in_array($user->role, $roles),
         'matches' => in_array($user->role, $roles)
     ]); 
-        // Check if user has any of the required roles
         if (!$user || !in_array($user->role, $roles)) {
             abort(403, 'Unauthorized action.');
         }

@@ -15,7 +15,8 @@ class UserRequest extends FormRequest
 
     public function rules()
     {
-        $userId = $this->route('user')?->id;
+        $routeUser = $this->route('user');
+        $userId = is_object($routeUser) ? $routeUser->id : $routeUser;
 
         $rules = [
             'name' => 'required|string|max:255',

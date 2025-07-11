@@ -24,7 +24,6 @@ class UserRepository extends BaseRepository
     public function addUser(array $newuserdata)
     {
         $authenticatedUser = Auth::user();
-
         $newuser = [
             'name' => $newuserdata['name'],
             'email' => $newuserdata['email'],
@@ -59,26 +58,24 @@ class UserRepository extends BaseRepository
             return null;
         }
         $authenticatedUserxx = Auth::user();
-
         $updateData = [
             'name' => $userdata['name'] ?? $user->name,
             'email' => $userdata['email'] ?? $user->email,
             'role' => $userdata['role'] ?? $user->role,
             'updated_by' => $authenticatedUserxx->id,
         ];
-
-        // Optionally update password if provided
-        if (!empty($userdata['password'])) {
-            $updateData['password'] = Hash::make($userdata['password']);
-        }
-
         $user->update($updateData);
-
         return $user->fresh();
     }
 
     public function getEmployees()
     {
         return $this->user->where('role', \App\Enums\Role::Employee->value)->get();
+    }
+
+    public function getClientDetailForUser($userId)
+    {
+        $clientDetailsRepo = app(\App\Repositories\ClientDetailsRepository::class);
+        return $clientDetailsRepo->getByAttribute('user_id', $userId);
     }
 }

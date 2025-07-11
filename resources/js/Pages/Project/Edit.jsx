@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useForm, usePage, Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ProjectIconHeader from './LoseComponents/ProjectIconHeader';
+import AssignedEmployeesList from './LoseComponents/AssignedEmployeesList';
 
 export default function Edit() {
   const { project, employees = [] } = usePage().props;
@@ -56,15 +58,9 @@ export default function Edit() {
             <div className="p-6 sm:p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Project Icon Header */}
-                <div className="flex items-center mb-6">
-                  <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center shadow border border-blue-100 mr-4">
-                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                      <rect x="4" y="4" width="16" height="16" rx="4" fill="#3b82f6" />
-                      <rect x="7" y="7" width="10" height="10" rx="2" fill="#fff" opacity="0.5" />
-                    </svg>
-                  </div>
-                  <h1 className="text-2xl font-bold text-gray-900">Edit {data.name}</h1>
-                </div>
+                <ProjectIconHeader
+                  title={`Edit ${data.name}`}
+                />
 
                 {/* Name Field */}
                 <div>
@@ -142,37 +138,13 @@ export default function Edit() {
                     </button>
                   </div>
                   {errors.employee_ids && <p className="mt-1 text-sm text-red-600">{errors.employee_ids}</p>}
-                  
                   {/* Selected Employees List */}
                   {data.employee_ids.length > 0 && (
-                    <div className="mt-4 space-y-2">
-                      <h3 className="text-sm font-medium text-gray-700">Assigned Employees</h3>
-                      <ul className="border border-gray-200 rounded-md divide-y divide-gray-200">
-                        {data.employee_ids.map(empId => {
-                          const emp = employees.find(e => e.id === empId);
-                          return (
-                            <li key={empId} className="px-3 py-2 flex items-center justify-between">
-                              <div className="flex items-center">
-                                <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
-                                  <svg className="h-4 w-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 14.75C8.28 14.75 5.25 15.23 5.25 17.5V19.75H18.75V17.5C18.75 15.23 15.72 14.75 12 14.75Z" />
-                                    <path d="M12 13C14.14 13 15.75 11.39 15.75 9.25C15.75 7.11 14.14 5.5 12 5.5C9.86 5.5 8.25 7.11 8.25 9.25C8.25 11.39 9.86 13 12 13Z" />
-                                  </svg>
-                                </div>
-                                <span>{emp ? emp.name : empId}</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveEmployee(empId)}
-                                className="text-red-600 hover:text-red-800 text-sm font-medium"
-                              >
-                                Remove
-                              </button>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
+                    <AssignedEmployeesList
+                      employeeIds={data.employee_ids}
+                      employees={employees}
+                      onRemove={handleRemoveEmployee}
+                    />
                   )}
                 </div>
 

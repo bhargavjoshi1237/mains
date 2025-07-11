@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, usePage, Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import UserCard from './LoseComponents/UserCard';
 
 export default function Show() {
     const { user, createdBy, clientDetail } = usePage().props;
@@ -37,18 +38,11 @@ export default function Show() {
                     <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                         {/* Vercel-style subtle gradient background */}
                         <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50/50 opacity-50 -z-10"></div>
-                        
                         <div className="p-6 sm:p-8">
                             <div className="flex items-start mb-6">
-                                <div className="h-12 w-12 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100 mr-4">
-                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                                        <circle cx="12" cy="7" r="4" fill="#3b82f6" />
-                                        <path d="M4 20c0-2.21 3.582-4 8-4s8 1.79 8 4v1H4v-1z" fill="#3b82f6" opacity="0.3" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
-                                    <p className="text-gray-500">{user.email}</p>
+                                {/* Use UserCard for avatar/name/email */}
+                                <div className="w-full">
+                                    <UserCard user={user} />
                                 </div>
                             </div>
 

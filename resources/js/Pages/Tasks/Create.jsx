@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useForm, Head, router, Link } from "@inertiajs/react";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import BackToTasksButton from "./LoseComponents/BackToTasksButton";
 
 function getProjectIdFromQuery() {
   if (typeof window === "undefined") return "";
@@ -45,12 +46,7 @@ export default function Create({ employees, statuses, projects, errors: serverEr
           <h2 className="text-xl font-semibold leading-tight text-gray-800">
             Create Task
           </h2>
-          <Link
-            href={route("task.index")}
-            className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
-          >
-            Back to Tasks
-          </Link>
+          <BackToTasksButton href={route("task.index")} />
         </div>
       }
     >

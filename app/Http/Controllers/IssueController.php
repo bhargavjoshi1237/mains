@@ -2,124 +2,123 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Issue;
-use App\Models\Project;
-use App\Models\User;
+use App\Repositories\IssueRepository;
+use App\Repositories\ProjectRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
+use App\Http\Controllers\BaseController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Http\Requests\IssueRequest;
+use Illuminate\Support\Facades\DB;
 
-class IssueController extends Controller
+class IssueController extends BaseController
 {
-    public function __construct() {}
+    protected $issueRepository;
+    protected $projectRepository;
+    protected $userRepository;
+
+    public function __construct(
+        IssueRepository $issueRepository,
+        ProjectRepository $projectRepository,
+        UserRepository $userRepository
+    ) {
+        $this->issueRepository = $issueRepository;
+        $this->projectRepository = $projectRepository;
+        $this->userRepository = $userRepository;
+    }
 
     public function index()
     {
-        try {
-            $issues = Issue::with(['project', 'assignedTo', 'createdBy'])->get();
-            $user = auth()->user();
-            return Inertia::render('Issues/Index', [
-                'issues' => $issues,
-                'user_role' => $user ? $user->role : null,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        $issues = $this->issueRepository->getAllWithRelations(['project', 'assignedTo', 'createdBy']);
+        $user = auth()->user();
+        return Inertia::render('Issues/Index', [
+            'issues' => $issues,
+            'user_role' => $user ? $user->role : null,
+        ]);
     }
 
     public function create()
     {
-        try {
-            $projects = Project::all();
-            $users = User::all();
-            return Inertia::render('Issues/Create', [
-                'projects' => $projects,
-                'users' => $users,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        $projects = $this->projectRepository->getAll();
+        $users = $this->userRepository->getAll();
+        return Inertia::render('Issues/Create', [
+            'projects' => $projects,
+            'users' => $users,
+        ]);
     }
 
-    public function store(Request $request)
+    public function store(IssueRequest $request)
     {
         try {
-            $data = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'status' => 'nullable|string|max:255',
-                'project_id' => 'required|string',
-                'assigned_to' => 'nullable|string',
-                'start_date' => 'nullable|date',
-                'end_date' => 'nullable|date',
-            ]);
+            DB::beginTransaction();
+            $data = $request->validated();
             $data['id'] = (string) Str::uuid();
             $data['created_by'] = Auth::id();
-            $issue = Issue::create($data);
-            return redirect()->route('issues.index')->with('success', 'Issue created successfully.');
+            $this->issueRepository->store($data);
+            DB::commit();
+            return $this->sendRedirectResponse(route('issues.index'), 'Issue created successfully.');
         } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
+            DB::rollBack();
+            return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 
-    public function show(Issue $issue)
+    public function show($id)
     {
-        try {
-            $issue->load(['project', 'assignedTo', 'createdBy']);
-            $user = auth()->user();
-            return Inertia::render('Issues/Show', [
-                'issue' => $issue,
-                'user_role' => $user ? $user->role : null,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        $issue = $this->issueRepository->findWithRelations($id, ['project', 'assignedTo', 'createdBy']);
+        $user = auth()->user();
+        return Inertia::render('Issues/Show', [
+            'issue' => $issue,
+            'user_role' => $user ? $user->role : null,
+        ]);
     }
 
-    public function edit(Issue $issue)
+    public function edit($id)
     {
         try {
-            $projects = Project::all();
-            $users = User::all();
-            $issue->load(['project', 'assignedTo', 'createdBy']);
+            DB::beginTransaction();
+            $projects = $this->projectRepository->getAll();
+            $users = $this->userRepository->getAll();
+            $issue = $this->issueRepository->findWithRelations($id, ['project', 'assignedTo', 'createdBy']);
+            DB::commit();
             return Inertia::render('Issues/Edit', [
                 'issue' => $issue,
                 'projects' => $projects,
                 'users' => $users,
             ]);
         } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
+            DB::rollBack();
+            return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 
-    public function update(Request $request, Issue $issue)
+    public function update(IssueRequest $request, $id)
     {
         try {
-            $data = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'status' => 'nullable|string|max:255',
-                'project_id' => 'required|string',
-                'assigned_to' => 'nullable|string',
-                'start_date' => 'nullable|date',
-                'end_date' => 'nullable|date',
-            ]);
+            DB::beginTransaction();
+            $data = $request->validated();
             $data['updated_by'] = Auth::id();
-            $issue->update($data);
-            return redirect()->route('issues.show', $issue->id)->with('success', 'Issue updated successfully.');
+            $this->issueRepository->update($id, $data);
+            DB::commit();
+            return $this->sendRedirectResponse(route('issues.show', $id), 'Issue updated successfully.');
         } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
+            DB::rollBack();
+            return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 
-    public function destroy(Issue $issue)
+    public function destroy($id)
     {
         try {
-            $issue->delete();
-            return redirect()->route('issues.index')->with('success', 'Issue deleted successfully.');
+            DB::beginTransaction();
+            $this->issueRepository->destroy($id);
+            DB::commit();
+            return $this->sendRedirectResponse(route('issues.index'), 'Issue deleted successfully.');
         } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
+            DB::rollBack();
+            return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 }

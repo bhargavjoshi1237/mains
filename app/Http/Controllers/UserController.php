@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Enums\Role;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -12,150 +11,118 @@ use App\Repositories\UserRepository;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Auth\Access\AuthorizationException;
-use App\Models\ClientDetail;
 use App\Repositories\ActivityRepository;
+use App\Repositories\ClientDetailsRepository;
+use Illuminate\Support\Facades\DB;
 
-class UserController extends Controller
+
+class UserController extends BaseController
 {
+    protected UserRepository $userRepository;
+    protected ClientDetailsRepository $clientDetailsRepository;
 
-    public function __construct(public UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, ClientDetailsRepository $clientDetailsRepository)
     {
-        $this->middleware('rolecheck:admin');
+        $this->userRepository = $userRepository;
+        $this->clientDetailsRepository = $clientDetailsRepository;
+
     }
 
-    /** 
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        try {
             return Inertia::render('User/Index', [
                 'users' => $this->userRepository->getAll(),
             ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        try {
-            return Inertia::render('User/Create', [
-                'roles' => array_column(Role::cases(), 'value'),
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        $clients = $this->userRepository->newQuery()->where('role', Role::Client->value)->get(['id', 'name']);
+        $employees = $this->userRepository->newQuery()->where('role', Role::Employee->value)->get(['id', 'name']);
+
+        return Inertia::render('User/Create', [
+            'roles' => array_column(Role::cases(), 'value'),
+            'clients' => $clients,
+            'employees' => $employees,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(UserRequest $request)
     {
         try {
+            DB::beginTransaction();
             $userdata = $request->validated();
             $user = $this->userRepository->addUser($userdata);
-
-            // Log activity
-            ActivityRepository::log('user', 'created', $user->id, $user->name);
-
-            return redirect()->route('user.index')->with('success', 'User created successfully.');
+            DB::commit();
+            return $this->sendRedirectResponse(route('user.index'), 'User created successfully.');
         } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
+            DB::rollBack();
+            return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
-    {
-        try {
-            $clientDetail = null;
-            if ($user->role === 'client') {
-                $clientDetail =  ClientDetail::where('user_id', $user->id)->first();
-            }
 
-            return Inertia::render('User/Show', [
-                'user' => $user,
-                'createdBy' => User::find($user->created_by) ?: null,
-                'clientDetail' => $clientDetail,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+    public function show($id)
+    {
+        $user = $this->userRepository->getById($id);
+        $clientDetail = $this->userRepository->getClientDetailForUser($user->id);
+        $createdBy = $user->created_by ? $this->userRepository->getById($user->created_by) : null;
+
+        return Inertia::render('User/Show', [
+            'user' => $user,
+            'createdBy' => $createdBy,
+            'clientDetail' => $clientDetail,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
+
+    public function edit($id)
     {
-        try {
-            $clientDetail = null;
-            if ($user->role === 'client') {
-                $clientDetail = ClientDetail::where('user_id', $user->id)->first();
-            }
-            return Inertia::render('User/Edit', [
-                'user' => $user,
-                'roles' => array_column(Role::cases(), 'value'),
-                'currentRole' => $user->role,
-                'clientDetail' => $clientDetail,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
-        }
+        $user = $this->userRepository->getById($id);
+        $clientDetail = $this->userRepository->getClientDetailForUser($user->id);
+        $employees = $this->userRepository->newQuery()->where('role', Role::Employee->value)->get(['id', 'name']);
+
+        return Inertia::render('User/Edit', [
+            'user' => $user,
+            'roles' => array_column(Role::cases(), 'value'),
+            'currentRole' => $user->role,
+            'clientDetail' => $clientDetail,
+            'employees' => $employees,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UserRequest $request, User $user)
+
+    public function update(UserRequest $request, $id)
     {
         try {
+            DB::beginTransaction();
+            $user = $this->userRepository->getById($id);
             $updateddata = $request->validated();
+            $updateddata['company_name'] = $request->input('company_name');
+            $updateddata['company_number'] = $request->input('company_number');
+
             $this->userRepository->updateUser($user->id, $updateddata);
+            DB::commit();
+            return $this->sendRedirectResponse(route('user.index'), 'User updated successfully.');
 
-            // Log activity
-            ActivityRepository::log('user', 'updated', $user->id, $user->name);
-
-            // Handle client details if user is client
-            if (($updateddata['role'] ?? $user->role) === 'client') {
-                $clientData = [
-                    'user_id' => $user->id,
-                    'company_name' => $request->input('company_name'),
-                    'company_number' => $request->input('company_number'),
-                ];
-                ClientDetail::updateOrCreate(
-                    ['user_id' => $user->id],
-                    $clientData
-                );
-            }
-
-            return redirect()->route('user.index')->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
+            DB::rollBack();
+            return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user)
+
+    public function destroy($id)
     {
         try {
-            $this->userRepository->destroy($user->id);
-
-            // Log activity
-            ActivityRepository::log('user', 'deleted', $user->id, $user->name);
-
-            return redirect()->route('user.index')->with('success', 'User deleted successfully.');
+            DB::beginTransaction();
+            $this->userRepository->destroy($id);
+            DB::commit();
+            return $this->sendRedirectResponse(route('user.index'), 'User deleted successfully.');
         } catch (\Exception $e) {
-            return redirect('/dashboard')->with('error', $e->getMessage());
+            DB::rollBack();
+            return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 }
