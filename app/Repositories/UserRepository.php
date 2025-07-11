@@ -13,12 +13,11 @@ use App\Repositories\ClientDetailsRepository;
 
 class UserRepository extends BaseRepository
 {
-    protected $user;
-
-    public function __construct(User $user)
-    {
+    public function __construct(
+        public User $user,
+        public ClientDetailsRepository $clientDetailsRepository
+    ) {
         parent::__construct($user);
-        $this->user = $user;
     }
 
     public function addUser(array $newuserdata)
@@ -27,7 +26,7 @@ class UserRepository extends BaseRepository
         $savedUser = $this->user->where('email', $newuserdata['email'])->first();
 
         if ($newuserdata['role'] === Role::Client->value) {
-            app(ClientDetailsRepository::class)->store([
+            $this->clientDetailsRepository->store([
             'id' => (string) Str::uuid(),
             'user_id' => (string) $savedUser->id,
             'company_name' => $newuserdata['client_company_name'] ?? null,
@@ -70,5 +69,5 @@ class UserRepository extends BaseRepository
 
     
 }
-   
-    
+
+

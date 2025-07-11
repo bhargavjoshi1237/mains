@@ -47,7 +47,6 @@ class UserController extends BaseController
         ]);
     }
 
-
     public function store(UserRequest $request)
     {   DB::beginTransaction();
         try {
@@ -61,16 +60,12 @@ class UserController extends BaseController
         }
     }
 
-
     public function show(User $user)
     {
-        $clientDetail = $user->clientDetail;  
-        $createdBy = $user->created_by ? $this->userRepository->getById($user->created_by) : null;
-
-        return Inertia::render('User/Show', [
+        $user = $user->load(['clientDetail', 'createdBy']);
+         return Inertia::render('User/Show', [
             'user' => $user,
-            'createdBy' => $createdBy,
-            'clientDetail' => $clientDetail,
+            
         ]);
     }
 
@@ -92,7 +87,7 @@ class UserController extends BaseController
     {   
         DB::beginTransaction();
         try {
-            $updateddata = $request->validated();
+            $updateddata = $request->getUpdatableFields();
             $this->userRepository->updateUser($user->id, $updateddata);
             DB::commit();
             return $this->sendRedirectResponse(route('user.index'), 'User updated successfully.');

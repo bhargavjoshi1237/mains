@@ -22,16 +22,6 @@ class TaskRepository extends BaseRepository
         parent::__construct($task);
     }
 
-    public function addTask(array $newTaskData): Task
-    {
-        return $this->store([
-            ...$newTaskData,
-            'id' => Str::uuid()->toString(),
-            'created_by' => Auth::id(),
-            'updated_by' => Auth::id()
-        ]);
-    }
-
     public function getTasksForUser($user): EloquentCollection
     {
         $relations = ['project', 'assignedTo', 'createdBy'];
@@ -114,3 +104,4 @@ class TaskRepository extends BaseRepository
     //         ->get();
     // }
 }
+   

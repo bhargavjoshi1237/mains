@@ -50,9 +50,10 @@ class TaskController extends BaseController
     }
 
     public function store(TaskRequest $request): RedirectResponse
-    {DB::beginTransaction();
+    {
+        DB::beginTransaction();
         try {
-            $task = $this->taskRepository->addTask($request->validated());
+            $task = $this->taskRepository->store($request->validated());
             DB::commit();
             return $this->sendRedirectResponse(route('task.index'), 'Task created successfully.');
         } catch (\Exception $e) {
@@ -87,7 +88,7 @@ class TaskController extends BaseController
     {
         DB::beginTransaction();
         try {
-            $updatedTask = $this->taskRepository->update($task->id, $request->validated());
+            $updatedTask = $this->taskRepository->update($task->id, $request->getUpdatableFields());
             DB::commit();
             return $this->sendRedirectResponse(route('task.show', ['task' => $updatedTask->id]), 'Task updated successfully.');
         } catch (\Exception $e) {

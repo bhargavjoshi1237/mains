@@ -43,4 +43,17 @@ class ProjectRequest extends FormRequest
         $data['updated_by'] = auth()->id();
         return $data;
     }
+
+    public function getUpdatableFields(): array
+    {
+        $fields = $this->only([
+            'name',
+            'description',
+            'client_id',
+            'start_date',
+            'end_date',
+        ]);
+        $fields['updated_by'] = auth()->id();
+        return $fields;
+    }
 }

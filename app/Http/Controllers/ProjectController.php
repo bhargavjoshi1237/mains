@@ -92,14 +92,13 @@ class ProjectController extends BaseController
         ]);
     }
 
-    public function update(ProjectRequest $request,  Project $project)
+    public function update(ProjectRequest $request, Project $project)
     {
         DB::beginTransaction();
         try {
-
-            $validated = $request->validated();
+            $fields = $request->getUpdatableFields();
             $employeeIds = $request->input('employee_ids', []);
-            $this->projects->update($project->id, $validated);
+            $this->projects->update($project->id, $fields);
             $project->employees()->sync($employeeIds);
             DB::commit();
             return $this->sendRedirectResponse(route('project.index'), 'Project updated successfully.');

@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\ClientDetail;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable
 {
@@ -86,5 +87,10 @@ class User extends Authenticatable
     public function assignedTasks()
     {
         return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    public function createdBy():BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

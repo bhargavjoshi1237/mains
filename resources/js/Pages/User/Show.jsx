@@ -4,7 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import UserCard from './LoseComponents/UserCard';
 
 export default function Show() {
-    const { user, createdBy, clientDetail } = usePage().props;
+    const { user } = usePage().props;
 
     if (!user) {
         return (
@@ -64,7 +64,7 @@ export default function Show() {
                                 <div>
                                     <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Created By</h3>
                                     <p className="mt-1 text-sm text-gray-900">
-                                        {createdBy ? createdBy.name : user.created_by || '-'}
+                                        {user.created_by ? user.created_by?.name : user.created_by || '-'}
                                     </p>
                                 </div>
                                 <div>
@@ -80,17 +80,17 @@ export default function Show() {
                                     </p>
                                 </div>
                             </div>
-                            {user.role === 'client' && clientDetail && (
+                            {user.role === 'client' && user.client_detail && (
                                 <div className="mb-6">
                                     <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Client Details</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <span className="block text-sm font-medium text-gray-700">Company Name</span>
-                                            <span className="text-sm text-gray-900">{clientDetail.company_name || '-'}</span>
+                                            <span className="text-sm text-gray-900">{client_detail.company_name || '-'}</span>
                                         </div>
                                         <div>
                                             <span className="block text-sm font-medium text-gray-700">Company Number</span>
-                                            <span className="text-sm text-gray-900">{clientDetail.company_number || '-'}</span>
+                                            <span className="text-sm text-gray-900">{client_detail.company_number || '-'}</span>
                                         </div>
                                     </div>
                                 </div>

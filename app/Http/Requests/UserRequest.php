@@ -37,25 +37,30 @@ class UserRequest extends FormRequest
         return $rules;
     }
 
+    public function getUpdatableFields(): array
+    {
+        $fields = $this->only([
+            'name',
+            'email',
+            'role',
+            'password',
+            'company_name',
+            'company_number',
+        ]);
+
+        $fields['updated_by'] = auth()->user()->id;
+
+        return $fields;
+    }
+
     public function validated($key = null, $default = null)
     {
-        $validated = parent::validated($key, $default);
-
-        if ($this->isMethod('post')) {
-            $authenticatedUser = auth()->user();
-            $validated['id'] = \Illuminate\Support\Str::uuid()->toString();
-            $validated['email_verified_at'] = null;
-            $validated['created_by'] = $authenticatedUser->id;
-            $validated['updated_by'] = $authenticatedUser->id;
-            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
-        }
-
-        if ($this->isMethod('put') || $this->isMethod('patch')) {
-            $validated['company_name'] = $this->input('company_name');
-            $validated['company_number'] = $this->input('company_number');
-            $validated['updated_by'] = auth()->user()->id;
-        }
-
-        return $validated;
+        $data = parent::validated($key, $default);
+        $data['created_by'] = auth()->id();
+        $data['updated_by'] = auth()->id();
+        return $data;
     }
+
+    // Remove validated() if you don't need to add/modify fields.
+    // If you need created_by, keep and add logic as shown previously.
 }
