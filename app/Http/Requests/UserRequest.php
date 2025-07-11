@@ -36,4 +36,26 @@ class UserRequest extends FormRequest
 
         return $rules;
     }
+
+    public function validated($key = null, $default = null)
+    {
+        $validated = parent::validated($key, $default);
+
+        if ($this->isMethod('post')) {
+            $authenticatedUser = auth()->user();
+            $validated['id'] = \Illuminate\Support\Str::uuid()->toString();
+            $validated['email_verified_at'] = null;
+            $validated['created_by'] = $authenticatedUser->id;
+            $validated['updated_by'] = $authenticatedUser->id;
+            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+        }
+
+        if ($this->isMethod('put') || $this->isMethod('patch')) {
+            $validated['company_name'] = $this->input('company_name');
+            $validated['company_number'] = $this->input('company_number');
+            $validated['updated_by'] = auth()->user()->id;
+        }
+
+        return $validated;
+    }
 }

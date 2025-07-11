@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use App\Models\Project;
+use App\Models\Task;
+use App\Models\ClientDetail;
 
 class User extends Authenticatable
 {
@@ -74,5 +76,15 @@ class User extends Authenticatable
     public function projectsAsClient()
     {
         return $this->hasMany(Project::class, 'client_id');
+    }
+
+    public function clientDetail()
+    {
+        return $this->hasOne(ClientDetail::class, 'user_id');
+    }
+
+    public function assignedTasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
     }
 }

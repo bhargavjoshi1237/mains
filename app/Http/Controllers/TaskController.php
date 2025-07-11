@@ -7,23 +7,21 @@ use App\Enums\Role;
 use App\Http\Requests\TaskRequest;
 use App\Repositories\ActivityRepository;
 use App\Repositories\TaskRepository;
-use App\Repositories\UserRepository; 
+use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
- 
+use App\Models\Task;
+
 class TaskController extends BaseController
 {
-    protected TaskRepository $taskRepository;
-    protected UserRepository $userRepository;  
 
-    public function __construct(TaskRepository $taskRepository, UserRepository $userRepository)
-    {
-        $this->taskRepository = $taskRepository;
-        $this->userRepository = $userRepository;
-    }
+    public function __construct(
+        public TaskRepository $taskRepository,
+        public UserRepository $userRepository
+    ) {}
 
     public function index(): Response
     {
@@ -40,7 +38,6 @@ class TaskController extends BaseController
         $statuses = array_column(Status::cases(), 'value');
 
         $projectsArr = $this->taskRepository->getProjectsForTaskCreation($user);
-       
         $allUsers = $this->userRepository->getAll();
         $employees = $this->taskRepository->getAllEmployees();
 
@@ -53,62 +50,62 @@ class TaskController extends BaseController
     }
 
     public function store(TaskRequest $request): RedirectResponse
-    {
+    {DB::beginTransaction();
         try {
             $task = $this->taskRepository->addTask($request->validated());
+            DB::commit();
             return $this->sendRedirectResponse(route('task.index'), 'Task created successfully.');
         } catch (\Exception $e) {
+            DB::rollBack();
             return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 
-    public function show(string $id): Response
+    public function show(Task $task): Response
     {
-        $task = $this->taskRepository->getById($id, ['project', 'assignedTo', 'createdBy']);
+        $task->load(['project', 'assignedTo', 'createdBy']);
         return Inertia::render('Tasks/Show', [
             'task' => $task,
             'user_role' => Auth::user()->role,
         ]);
     }
 
-    public function edit(string $id): Response
+    public function edit(Task $task): Response
     {
-         
-        $task = $this->taskRepository->getById($id, ['project', 'assignedTo', 'createdBy']);
-        $user = Auth::user();
-        $users = $this->taskRepository->getUsersForTaskEdit($user);
+        $task->load(['project', 'assignedTo', 'createdBy']);
+        $project = $task->project;
+        $users = $project ? $project->employees : collect();
 
         return Inertia::render('Tasks/Edit', [
             'task' => $task,
             'users' => $users,
             'statuses' => array_column(Status::cases(), 'value'),
         ]);
-        
     }
 
-    public function update(TaskRequest $request, string $id): RedirectResponse
+    public function update(TaskRequest $request, Task $task): RedirectResponse
     {
+        DB::beginTransaction();
         try {
-            $validatedData = $request->validated();
-            $task = $this->taskRepository->update($id, [
-                ...$validatedData,
-                'updated_by' => Auth::id()
-            ]);
-
-            return $this->sendRedirectResponse(route('task.show', ['task' => $task->id]), 'Task updated successfully.');
+            $updatedTask = $this->taskRepository->update($task->id, $request->validated());
+            DB::commit();
+            return $this->sendRedirectResponse(route('task.show', ['task' => $updatedTask->id]), 'Task updated successfully.');
         } catch (\Exception $e) {
+            DB::rollBack();
             return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 
-    public function destroy(string $id): RedirectResponse
+    public function destroy(Task $task): RedirectResponse
     {
+        DB::beginTransaction();
         try {
-            $this->taskRepository->destroy($id);
+            $this->taskRepository->destroy($task->id);
+            DB::commit();
             return $this->sendRedirectResponse(route('task.index'), 'Task deleted successfully.');
         } catch (\Exception $e) {
+            DB::rollBack();
             return $this->sendRedirectError('/dashboard', $e->getMessage());
         }
     }
 }
-

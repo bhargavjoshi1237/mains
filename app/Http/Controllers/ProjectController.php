@@ -9,22 +9,22 @@ use App\Repositories\ProjectEmployeeRepository;
 use App\Repositories\UserRepository;
 use App\Http\Requests\ProjectRequest;
 use App\Repositories\TaskRepository;
- 
+use App\Models\Project;
+
 use Illuminate\Support\Facades\DB;
 
 
 class ProjectController extends BaseController
 {
-    protected $projects;
-    protected $projectEmployees;
-    protected $users;
 
-    public function __construct(ProjectRepository $projects, ProjectEmployeeRepository $projectEmployees, UserRepository $users)
-    {
-        $this->projects = $projects;
-        $this->projectEmployees = $projectEmployees;
-        $this->users = $users;
-    }
+    public function __construct(
+
+        public ProjectRepository $projects,
+        public ProjectEmployeeRepository $projectEmployees,
+        public UserRepository $users,
+        public TaskRepository $tasksrepository
+
+    ) {}
 
     public function index()
     {
@@ -40,8 +40,8 @@ class ProjectController extends BaseController
 
     public function create()
     {
-        $clients = $this->users->newQuery()->where('role', Role::Client->value)->get(['id', 'name']);
-        $employees = $this->users->newQuery()->where('role', Role::Employee->value)->get(['id', 'name']);
+        $clients = $this->users->getUsersByRoleBasic(Role::Client->value);
+        $employees = $this->users->getUsersByRoleBasic(Role::Employee->value);
         return Inertia::render('Project/Create', [
             'clients' => $clients,
             'employees' => $employees,
@@ -50,22 +50,12 @@ class ProjectController extends BaseController
 
     public function store(ProjectRequest $request)
     {
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
             $validated = $request->validated();
             $employeeIds = $request->input('employee_ids', []);
-            $validated['created_by'] = auth()->id();
-            $validated['updated_by'] = auth()->id();
             $project = $this->projects->store($validated);
-
-            if ($project && !empty($employeeIds) && is_array($employeeIds)) {
-                foreach ($employeeIds as $empId) {
-                    $this->projectEmployees->store([
-                        'project_id' => $project->id,
-                        'user_id' => $empId,
-                    ]);
-                }
-            }
+            $this->projects->attachEmployees($project, (array) $employeeIds);
             DB::commit();
             return $this->sendRedirectResponse(route('project.index'), 'Project created successfully.');
         } catch (\Exception $e) {
@@ -74,16 +64,11 @@ class ProjectController extends BaseController
         }
     }
 
-    public function show($id)
+    public function show(Project $project)
     {
-        $project = $this->projects->getById($id, ['client:id,name', 'createdByUser:id,name', 'updatedByUser:id,name', 'employees:id,name']);
+        $project->load(['client:id,name', 'createdByUser:id,name', 'updatedByUser:id,name', 'employees:id,name']);
         $user = auth()->user();
-
-        $tasks = app(TaskRepository::class)->newQuery()
-            ->with(['assignedTo', 'createdBy'])
-            ->where('project_id', $id)
-            ->get();
-
+        $tasks = $project->tasks()->with(['assignedTo', 'createdBy'])->get();
         $employees = $project->employees;
 
         return Inertia::render('Project/Show', [
@@ -95,10 +80,10 @@ class ProjectController extends BaseController
         ]);
     }
 
-    public function edit($id)
+    public function edit(Project $project)
     {
-        $project = $this->projects->getById($id, ['employees']);
-        $employees = $this->users->newQuery()->where('role', Role::Employee->value)->get(['id', 'name']);
+        $project->load(['employees']);
+        $employees = $this->users->getUsersByRoleBasic(\App\Enums\Role::Employee->value);
         $user = auth()->user();
         return Inertia::render('Project/Edit', [
             'project' => $project,
@@ -107,15 +92,14 @@ class ProjectController extends BaseController
         ]);
     }
 
-    public function update(ProjectRequest $request, $id)
+    public function update(ProjectRequest $request,  Project $project)
     {
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
+
             $validated = $request->validated();
             $employeeIds = $request->input('employee_ids', []);
-            $this->projects->update($id, $validated);
-
-            $project = $this->projects->getById($id);
+            $this->projects->update($project->id, $validated);
             $project->employees()->sync($employeeIds);
             DB::commit();
             return $this->sendRedirectResponse(route('project.index'), 'Project updated successfully.');
@@ -125,12 +109,12 @@ class ProjectController extends BaseController
         }
     }
 
-    public function destroy($id)
+    public function destroy( Project $project)
     {
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
-            $this->projectEmployees->newQuery()->where('project_id', $id)->delete();
-            $this->projects->destroy($id);
+            $project->employees()->detach();
+            $this->projects->destroy($project->id);
             DB::commit();
             return $this->sendRedirectResponse(route('project.index'), 'Project deleted successfully.');
         } catch (\Exception $e) {
@@ -139,3 +123,4 @@ class ProjectController extends BaseController
         }
     }
 }
+

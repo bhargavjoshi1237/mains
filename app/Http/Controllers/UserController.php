@@ -14,19 +14,19 @@ use Illuminate\Auth\Access\AuthorizationException;
 use App\Repositories\ActivityRepository;
 use App\Repositories\ClientDetailsRepository;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 
 class UserController extends BaseController
 {
-    protected UserRepository $userRepository;
-    protected ClientDetailsRepository $clientDetailsRepository;
 
-    public function __construct(UserRepository $userRepository, ClientDetailsRepository $clientDetailsRepository)
-    {
-        $this->userRepository = $userRepository;
-        $this->clientDetailsRepository = $clientDetailsRepository;
+    public function __construct(
+        public UserRepository $userRepository,
+        public ClientDetailsRepository $clientDetailsRepository
+    ){
 
     }
+    
 
     public function index()
     {
@@ -37,8 +37,8 @@ class UserController extends BaseController
 
     public function create()
     {
-        $clients = $this->userRepository->newQuery()->where('role', Role::Client->value)->get(['id', 'name']);
-        $employees = $this->userRepository->newQuery()->where('role', Role::Employee->value)->get(['id', 'name']);
+        $clients = $this->userRepository->getUsersByRoleBasic(Role::Client->value);
+        $employees = $this->userRepository->getUsersByRoleBasic(Role::Employee->value);
 
         return Inertia::render('User/Create', [
             'roles' => array_column(Role::cases(), 'value'),
@@ -49,9 +49,8 @@ class UserController extends BaseController
 
 
     public function store(UserRequest $request)
-    {
+    {   DB::beginTransaction();
         try {
-            DB::beginTransaction();
             $userdata = $request->validated();
             $user = $this->userRepository->addUser($userdata);
             DB::commit();
@@ -63,10 +62,9 @@ class UserController extends BaseController
     }
 
 
-    public function show($id)
+    public function show(User $user)
     {
-        $user = $this->userRepository->getById($id);
-        $clientDetail = $this->userRepository->getClientDetailForUser($user->id);
+        $clientDetail = $user->clientDetail;  
         $createdBy = $user->created_by ? $this->userRepository->getById($user->created_by) : null;
 
         return Inertia::render('User/Show', [
@@ -77,35 +75,27 @@ class UserController extends BaseController
     }
 
 
-    public function edit($id)
+    public function edit(User $user)
     {
-        $user = $this->userRepository->getById($id);
-        $clientDetail = $this->userRepository->getClientDetailForUser($user->id);
-        $employees = $this->userRepository->newQuery()->where('role', Role::Employee->value)->get(['id', 'name']);
+        $clientDetail = $user->clientDetail;  
 
         return Inertia::render('User/Edit', [
             'user' => $user,
             'roles' => array_column(Role::cases(), 'value'),
             'currentRole' => $user->role,
             'clientDetail' => $clientDetail,
-            'employees' => $employees,
         ]);
     }
 
 
-    public function update(UserRequest $request, $id)
-    {
+    public function update(UserRequest $request, User $user)
+    {   
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
-            $user = $this->userRepository->getById($id);
             $updateddata = $request->validated();
-            $updateddata['company_name'] = $request->input('company_name');
-            $updateddata['company_number'] = $request->input('company_number');
-
             $this->userRepository->updateUser($user->id, $updateddata);
             DB::commit();
             return $this->sendRedirectResponse(route('user.index'), 'User updated successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->sendRedirectError('/dashboard', $e->getMessage());
@@ -113,11 +103,11 @@ class UserController extends BaseController
     }
 
 
-    public function destroy($id)
-    {
+    public function destroy(User $user)
+    {   
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
-            $this->userRepository->destroy($id);
+            $this->userRepository->destroy($user->id);
             DB::commit();
             return $this->sendRedirectResponse(route('user.index'), 'User deleted successfully.');
         } catch (\Exception $e) {
@@ -126,3 +116,4 @@ class UserController extends BaseController
         }
     }
 }
+

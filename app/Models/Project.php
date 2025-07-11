@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use App\Models\User;
+use App\Models\Task;
 
 class Project extends Model
 {
@@ -38,6 +40,11 @@ class Project extends Model
     public function client()
     {
         return $this->belongsTo(User::class, 'client_id');
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'project_id');
     }
 
     protected static function boot()

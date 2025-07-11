@@ -23,28 +23,15 @@ class UserRepository extends BaseRepository
 
     public function addUser(array $newuserdata)
     {
-        $authenticatedUser = Auth::user();
-        $newuser = [
-            'name' => $newuserdata['name'],
-            'email' => $newuserdata['email'],
-            'role' => $newuserdata['role'],
-            'id' => Str::uuid()->toString(),
-            'email_verified_at' => null,
-            'created_by' => $authenticatedUser->id,
-            'updated_by' => $authenticatedUser->id,
-            'password' => Hash::make($newuserdata['password']),
-        ];
-
-        $user = $this->user->create($newuser);
+        $user = $this->user->create($newuserdata);
         $savedUser = $this->user->where('email', $newuserdata['email'])->first();
 
         if ($newuserdata['role'] === Role::Client->value) {
-            $clientDetailsRepo = app(ClientDetailsRepository::class);
-            $clientDetailsRepo->store([
-                'id' => Str::uuid()->toString(),
-                'user_id' => (string) $savedUser->id,
-                'company_name' => $newuserdata['client_company_name'] ?? null,
-                'company_number' => $newuserdata['client_company_number'] ?? null,
+            app(ClientDetailsRepository::class)->store([
+            'id' => (string) Str::uuid(),
+            'user_id' => (string) $savedUser->id,
+            'company_name' => $newuserdata['client_company_name'] ?? null,
+            'company_number' => $newuserdata['client_company_number'] ?? null,
             ]);
         }
 
@@ -56,26 +43,32 @@ class UserRepository extends BaseRepository
         $user = $this->user->find($id);
         if (!$user) {
             return null;
+        }          
+        $user->update($userdata);
+        
+        if (isset($userdata['company_name']) || isset($userdata['company_number'])) {
+            $clientDetail = $user->clientDetail;
+            if ($clientDetail) {
+                $clientDetail->update([
+                    'company_name' => $userdata['company_name'] ?? $clientDetail->company_name,
+                    'company_number' => $userdata['company_number'] ?? $clientDetail->company_number,
+                ]);
+            }
         }
-        $authenticatedUserxx = Auth::user();
-        $updateData = [
-            'name' => $userdata['name'] ?? $user->name,
-            'email' => $userdata['email'] ?? $user->email,
-            'role' => $userdata['role'] ?? $user->role,
-            'updated_by' => $authenticatedUserxx->id,
-        ];
-        $user->update($updateData);
         return $user->fresh();
     }
 
-    public function getEmployees()
+    // public function getEmployees()
+    // {
+    //     return $this->user->where('role', Role::Employee->value)->get();
+    // }
+
+    public function getUsersByRoleBasic($role)
     {
-        return $this->user->where('role', \App\Enums\Role::Employee->value)->get();
+        return $this->user->where('role', $role)->get(['id', 'name']);
     }
 
-    public function getClientDetailForUser($userId)
-    {
-        $clientDetailsRepo = app(\App\Repositories\ClientDetailsRepository::class);
-        return $clientDetailsRepo->getByAttribute('user_id', $userId);
-    }
+    
 }
+   
+    

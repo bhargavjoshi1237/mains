@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class IssueRequest extends FormRequest
 {
@@ -22,5 +24,14 @@ class IssueRequest extends FormRequest
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
         ];
+    }
+
+    public function validated($key = null, $default = null)
+    {
+        $data = parent::validated($key, $default);
+        $data['id'] = (string) Str::uuid();
+        $data['created_by'] = Auth::id();
+        $data['updated_by'] = Auth::id();
+        return $data;
     }
 }

@@ -16,23 +16,14 @@ class TaskRepository extends BaseRepository
 
     public function __construct(
         Task $task,
-        protected ProjectRepository $projectRepository,
-        protected UserRepository $userRepository
+        public ProjectRepository $projectRepository,
+        public UserRepository $userRepository
     ) {
         parent::__construct($task);
     }
 
-
     public function addTask(array $newTaskData): Task
     {
-        $requiredFields = ['name', 'project_id'];
-        $missingFields = array_diff($requiredFields, array_keys($newTaskData));
-        if (!empty($missingFields)) {
-            throw ValidationException::withMessages([
-                'missing_fields' => 'Missing required fields: ' . implode(', ', $missingFields)
-            ]);
-        }
-
         return $this->store([
             ...$newTaskData,
             'id' => Str::uuid()->toString(),
@@ -45,11 +36,11 @@ class TaskRepository extends BaseRepository
     {
         $relations = ['project', 'assignedTo', 'createdBy'];
 
-        if ($user->role === \App\Enums\Role::Admin->value) {
+        if ($user->role === Role::Admin->value) {
             return $this->getAll($relations);
         }
 
-        if ($user->role === \App\Enums\Role::Client->value) {
+        if ($user->role ===  Role::Client->value) {
             $projectIds = $user->projectsAsClient()->pluck('projects.id');
             return $this->newQuery()
                 ->with($relations)
@@ -57,7 +48,7 @@ class TaskRepository extends BaseRepository
                 ->get();
         }
 
-        if ($user->role === \App\Enums\Role::Employee->value) {
+        if ($user->role ===  Role::Employee->value) {
             $projectIds = $user->projectsAsEmployee()->pluck('projects.id');
             return $this->newQuery()
                 ->with($relations)
@@ -71,7 +62,7 @@ class TaskRepository extends BaseRepository
 
     public function getProjectsForTaskCreation($user): array
     {
-        // Use ProjectRepository instead of direct model
+        
         $projects = $user->role === Role::Admin->value
             ? $this->projectRepository->getAll(['employees:id,name'])
             : $user->projectsAsEmployee()->with(['employees:id,name'])->get(); // Still using user relationship here
@@ -85,12 +76,10 @@ class TaskRepository extends BaseRepository
         return $projectsArr;
     }
 
-
     public function getAllEmployees(): EloquentCollection
     {
         return $this->userRepository->newQuery()->where('role', Role::Employee->value)->get();
     }
-
 
     public function getUsersForTaskEdit($currentUser): EloquentCollection
     {
@@ -110,4 +99,18 @@ class TaskRepository extends BaseRepository
             return User::whereIn('id', $employeeIds)->get();
         }
     }
+
+    public function update($id, array $inputs): mixed
+    {
+        $inputs['updated_by'] = Auth::id();
+        return parent::update($id, $inputs);
+    }
+
+    // public function getTasksForProject($projectId): EloquentCollection
+    // {
+    //     return $this->newQuery()
+    //         ->with(['assignedTo', 'createdBy'])
+    //         ->where('project_id', $projectId)
+    //         ->get();
+    // }
 }

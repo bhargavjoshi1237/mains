@@ -32,7 +32,15 @@ class ProjectRequest extends FormRequest
                 'end_date' => 'nullable|date|after_or_equal:start_date',
             ];
         }
-        // Default rules
+       
         return [];
+    }
+
+    public function validated($key = null, $default = null)
+    {
+        $data = parent::validated($key, $default);
+        $data['created_by'] = auth()->id();
+        $data['updated_by'] = auth()->id();
+        return $data;
     }
 }

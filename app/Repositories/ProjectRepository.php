@@ -54,4 +54,9 @@ class ProjectRepository extends BaseRepository
             return collect();
         }
     }
+
+    public function attachEmployees($project, array $employeeIds)
+    {
+        $project->employees()->sync($employeeIds);
+    }
 }
