@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 use Inertia\Response;
 use App\Models\Task;
 
@@ -25,10 +26,18 @@ class TaskController extends BaseController
 
     public function index(): Response
     {
-        $user = Auth::user();
+        $user = auth()->user();
         $tasks = $this->taskRepository->getTasksForUser($user);
+        $statuses = array_column(Status::cases(), 'value');
+        $employees = $this->taskRepository->getAllEmployees();
+        $projectsArr = $this->taskRepository->getProjectsForTaskCreation($user);
+
         return Inertia::render('Tasks/Index', [
             'tasks' => $tasks,
+            'statuses' => $statuses,
+            'employees' => $employees,
+            'projects' => $projectsArr,
+            'user_role' => $user->role,
         ]);
     }
 
@@ -56,9 +65,13 @@ class TaskController extends BaseController
             $task = $this->taskRepository->store($request->validated());
             DB::commit();
             return $this->sendRedirectResponse(route('task.index'), 'Task created successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            // Redirect back with validation errors
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendRedirectError('/dashboard', $e->getMessage());
+            return redirect()->back()->withErrors(['general' => $e->getMessage()])->withInput();
         }
     }
 
@@ -88,12 +101,15 @@ class TaskController extends BaseController
     {
         DB::beginTransaction();
         try {
-            $updatedTask = $this->taskRepository->update($task->id, $request->getUpdatableFields());
+            $this->taskRepository->update($task->id, $request->getUpdatableFields());
             DB::commit();
-            return $this->sendRedirectResponse(route('task.show', ['task' => $updatedTask->id]), 'Task updated successfully.');
+            return $this->sendRedirectResponse(route('task.index'), 'Task updated successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendRedirectError('/dashboard', $e->getMessage());
+            return redirect()->back()->withErrors(['general' => $e->getMessage()])->withInput();
         }
     }
 
@@ -107,6 +123,25 @@ class TaskController extends BaseController
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->sendRedirectError('/dashboard', $e->getMessage());
+        }
+    }
+
+    public function batchUpdate(TaskRequest $request)
+    {
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+            $this->taskRepository->batchUpdateTasks($data);
+            DB::commit();
+            return redirect()->route('task.index')->with('success', 'Batch update successful.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            // Only show validation errors, not generic batch error
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Only show generic error if not validation
+            return redirect()->back()->withErrors(['batch' => $e->getMessage()])->withInput();
         }
     }
 }

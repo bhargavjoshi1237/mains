@@ -13,12 +13,12 @@ class RoleCheck
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = auth()->user();
-         \Log::info('Role check', [
-        'user_role' => $user->role,
-        'required_roles' => $roles,
-        'allowed' => $user && in_array($user->role, $roles),
-        'matches' => in_array($user->role, $roles)
-    ]); 
+    //      \Log::info('Role check', [
+    //     'user_role' => $user->role,
+    //     'required_roles' => $roles,
+    //     'allowed' => $user && in_array($user->role, $roles),
+    //     'matches' => in_array($user->role, $roles)
+    // ]); 
         if (!$user || !in_array($user->role, $roles)) {
             abort(403, 'Unauthorized action.');
         }

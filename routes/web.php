@@ -135,7 +135,9 @@ Route::delete('/project/{project}', [ProjectController::class, 'destroy'])
     ->middleware('rolecheck:admin')
     ->name('project.destroy');
 
-
+// In your routes file (web.php or api.php)
+Route::post('/tasks/bulk-sync', [TaskController::class, 'bulkSync'])->name('tasks.bulkSync');
+Route::post('/task/batch-update', [TaskController::class, 'batchUpdate'])->name('task.batchUpdate');
 
 
 // Route::resource('project', ProjectController::class);

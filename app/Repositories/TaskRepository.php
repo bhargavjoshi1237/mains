@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use App\Models\Project;
 use App\Models\User;
+use App\Http\Requests\TaskRequest;
 
 class TaskRepository extends BaseRepository
 {
@@ -52,7 +53,7 @@ class TaskRepository extends BaseRepository
 
     public function getProjectsForTaskCreation($user): array
     {
-        
+
         $projects = $user->role === Role::Admin->value
             ? $this->projectRepository->getAll(['employees:id,name'])
             : $user->projectsAsEmployee()->with(['employees:id,name'])->get(); // Still using user relationship here
@@ -90,18 +91,30 @@ class TaskRepository extends BaseRepository
         }
     }
 
-    public function update($id, array $inputs): mixed
-    {
-        $inputs['updated_by'] = Auth::id();
-        return parent::update($id, $inputs);
-    }
 
-    // public function getTasksForProject($projectId): EloquentCollection
-    // {
-    //     return $this->newQuery()
-    //         ->with(['assignedTo', 'createdBy'])
-    //         ->where('project_id', $projectId)
-    //         ->get();
-    // }
+
+    public function batchUpdateTasks(array $data)
+    {
+        $tasks = $data['tasks'] ?? [];
+        $deletes = $data['deletes'] ?? [];
+        if (!empty($deletes)) {
+            $this->destroyByIds($deletes);
+        }
+        $taskRequest = new TaskRequest();
+        foreach ($tasks as $taskData) {
+            try {
+                if (!empty($taskData['id'])) {
+                    $fields = $taskRequest->validateForUpdate($taskData);
+                    $key = ['id' => $taskData['id']];
+                } else {
+                    $fields = $taskRequest->validateForCreate($taskData);
+                    $key = ['id' => $fields['id']];
+                }
+                $this->updateOrCreate($fields, $key);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                // Rethrow so controller can handle and show field errors
+                throw $e;
+            }
+        }
+    }
 }
-   
