@@ -72,7 +72,7 @@ const activities = [
 ];
 
 const RecentActivity = () => (
-  <div className="bg-white rounded-xl shadow p-5 w-full">
+  <div className="bg-white rounded-xl shadow p-5 lg:-mt-10 w-full">
     {/* Header */}
     <div className="flex items-center justify-between mb-3">
         <div className="flex flex-col">

@@ -11,70 +11,72 @@ const total = deals.reduce((sum, d) => sum + d.value, 0);
 
 export default function DealsStatus() {
   return (
-    <div
-      className="bg-white rounded-xl shadow p-5 pt-6 w-full max-w-[600px] xl:max-w-[450px] min-w-0 h-[350px] sm:h-[350px] md:h-[300px] lg:h-[350px] mx-auto"
-      style={{ fontFamily: "inherit" }}
-    >
-      <div className="flex  items-center justify-between  mb-4">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 lg:p-6 w-full min-w-0 h-auto">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
-          <div className="flex flex-col">
-            <span className="w-1 h-2 bg-[#ae97f3] mr-2"></span>
-            <span className="w-1 h-2 bg-[#97f0a2] mr-2"></span>
+          <div className="flex flex-col mr-2">
+            <span className="w-1 h-2 bg-[#ae97f3]"></span>
+            <span className="w-1 h-2 bg-[#97f0a2]"></span>
           </div>
-          <span className="font-semibold text-gray-700 text-base">
+          <span className="font-semibold text-gray-700 text-sm sm:text-base">
             Deals Status
           </span>
         </div>
         <a
           href="#"
-          className="text-xs text-blue-500 font-semibold hover:underline"
+          className="text-xs sm:text-sm text-blue-500 font-semibold hover:underline"
         >
           View All
         </a>
       </div>
-      <hr className="" />
       
-      <div className="mt-4 mb-6">
-        <div className="flex items-end gap-2 mb-4">
-          <span className="text-3xl font-bold text-gray-900">4,289</span>
-          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-semibold ml-2">
-            1.02{" "}
-            <span className="align-middle">&#8593;</span>
-          </span>
-          <div className="text-xs text-gray-400 font-semibold mt-1">
-          compared to last week
+      <hr className="border-gray-200 mb-4" />
+      
+      <div className="mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3 mb-4">
+          <span className="text-2xl sm:text-3xl font-bold text-gray-900">4,289</span>
+          <div className="flex items-center gap-2">
+            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-semibold">
+              1.02 <span className="align-middle">↑</span>
+            </span>
+            <span className="text-xs text-gray-400 font-medium">
+              compared to last week
+            </span>
+          </div>
         </div>
-        </div>
-        
       </div>
-      <div className="w-full flex items-center mt-3 mb-8">
-        <div className="flex w-full h-2 rounded overflow-hidden">
-          {deals.map((d, i) => (
+      
+      {/* Progress Bar */}
+      <div className="w-full mb-6 sm:mb-8">
+        <div className="flex w-full h-2 sm:h-2.5 rounded-full overflow-hidden bg-gray-100">
+          {deals.map((deal, i) => (
             <div
-              key={d.label}
+              key={deal.label}
               style={{
-                background: d.color,
-                width: `${(d.value / total) * 100}%`,
-                height: "100%",
+                background: deal.color,
+                width: `${(deal.value / total) * 100}%`,
               }}
+              className="h-full transition-all duration-300"
             />
           ))}
         </div>
       </div>
-      <div className="flex flex-col gap-5 mt-2">
-        {deals.map((d) => (
-          <div key={d.label} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+      
+      {/* Deals List */}
+      <div className="space-y-3 sm:space-y-4">
+        {deals.map((deal) => (
+          <div key={deal.label} className="flex items-center justify-between hover:bg-gray-50 p-2 -m-2 rounded-lg transition-colors">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
               <span
-                className="w-2 h-2 rounded-full"
-                style={{ background: d.color }}
+                className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full flex-shrink-0"
+                style={{ background: deal.color }}
               ></span>
-              <span className="text-sm text-gray-700 font-medium">
-                {d.label}
+              <span className="text-xs sm:text-sm text-gray-700 font-medium truncate">
+                {deal.label}
               </span>
             </div>
-            <span className="text-sm text-gray-500 font-semibold">
-              {d.value.toLocaleString()} deals
+            <span className="text-xs sm:text-sm text-gray-500 font-semibold flex-shrink-0 ml-2">
+              {deal.value.toLocaleString()} deals
             </span>
           </div>
         ))}

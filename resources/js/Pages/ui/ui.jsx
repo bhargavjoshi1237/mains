@@ -1,69 +1,119 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import TargetCard from "./TargetCard";
 import StatsGrid from "./StatsGrid";
 import LeadsBySource from "./LeadsBySource";
 import TopDeals from "./TopDeals";
-import TestCard from "./test";
 import DealsStatus from "./DealsStatus";
 import RevenueAnalytics from "./RevenueAnalytics";
-import ProfitEarned from "./ProfitEarned"; // <-- Add import
+import ProfitEarned from "./ProfitEarned";
 import RecentActivity from "./RecentActivity";
 import DealsStatistics from "./DealsStatistics";
 
-// Responsive dashboard grid based on provided image
 const UIPage = () => {
+  const [sidebarDocked, setSidebarDocked] = useState(false);
+  const [sidebarHovered, setSidebarHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Prevent horizontal scroll globally
+  useEffect(() => {
+    document.body.style.overflowX = 'hidden';
+    document.documentElement.style.overflowX = 'hidden';
+    
+    return () => {
+      document.body.style.overflowX = '';
+      document.documentElement.style.overflowX = '';
+    };
+  }, []);
+
+  // Listen for sidebar state changes
+  useEffect(() => {
+    const handleSidebarState = (event) => {
+      if (event.detail) {
+        setSidebarDocked(event.detail.docked);
+        setSidebarHovered(event.detail.hovered);
+      }
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarState);
+    return () => window.removeEventListener('sidebarStateChange', handleSidebarState);
+  }, []);
+
+  const sidebarWidth = sidebarDocked || sidebarHovered ? 256 : 70;
+
   return (
-    <div className="">
-      <Navbar />
-      <div className="bg-[#f0f1f7] min-h-screen ml-[70px]">
+    <div className="min-h-screen overflow-x-hidden">
+      <Sidebar />
+      <Navbar sidebarWidth={isMobile ? 0 : sidebarWidth} />
+      <div
+        className="bg-[#f0f1f7] min-h-screen transition-all duration-300 pt-14 overflow-x-hidden"
+        style={{
+          marginLeft: isMobile ? '0px' : `${sidebarWidth}px`
+        }}
+      >
         {/* Header & Actions */}
-        <div className="w-full px-4 pt-6 flex flex-col gap-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full">
-            <div>
-              <p className="font-bold text-lg">Welcome back, Json Taylor !</p>
-              <p className="text-md text-gray-500">
+        <div className="w-full px-3 sm:px-4 lg:px-6 pt-4 sm:pt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="font-bold text-lg sm:text-xl lg:text-2xl text-gray-900 truncate">
+                Welcome back, Json Taylor!
+              </h1>
+              <p className="text-sm sm:text-base text-gray-500 mt-1">
                 Track your sales activity, leads and details here.
               </p>
             </div>
-            <div className="flex gap-3 mt-4 md:mt-0 justify-end">
-              <button className="bg-purple-500 h-11 text-white px-4 py-2 rounded-lg flex items-center">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+              <button className="bg-purple-500 h-10 sm:h-11 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center text-sm sm:text-base font-medium hover:bg-purple-600 transition-colors">
                 <img
                   src="https://api.iconify.design/ic:baseline-filter-list.svg?color=white"
                   alt="Filter"
-                  className="w-5 h-5 mr-2"
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
                 />
                 Filters
               </button>
-              <button className="bg-transparent border border-blue-500 h-11 text-white px-4 py-2 rounded-lg flex items-center">
+              <button className="bg-transparent border border-blue-500 h-10 sm:h-11 text-blue-500 px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center text-sm sm:text-base font-medium hover:bg-blue-50 transition-colors">
                 <img
                   src="https://api.iconify.design/ic:outline-cloud-download.svg?color=blue"
                   alt="Download"
-                  className="w-5 h-5 mr-2"
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
                 />
-                <p className="text-blue-500">Export</p>
+                Export
               </button>
             </div>
           </div>
         </div>
+
         {/* Main Dashboard Grid */}
-        <div className="w-full px-4 mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 auto-rows-min">
+        <div className="w-full px-3 sm:px-4 lg:px-6 mt-4 sm:mt-6">
+          {/* 3-column layout for xl+, 2-column for lg, 1-column for smaller */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {/* Left column: TargetCard, TopDeals, ProfitEarned */}
-            <div className="grid g  gap-6 col-span-1 h-auto  ">
-              <div>
-                <TargetCard />
-              </div>
-              <div>
+            <div className="lg:col-span-1 xl:col-span-1 space-y-4 sm:space-y-6">
+              <TargetCard />
+              <div className="hidden sm:block">
                 <TopDeals />
               </div>
-              <div>
+              <div className="hidden xl:block">
                 <ProfitEarned />
               </div>
             </div>
-            {/* Center column: StatsGrid cards */}
-            <div className="flex flex-col gap-6 col-span-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {/* Center column: StatsGrid cards and RevenueAnalytics */}
+            <div className="lg:col-span-2 xl:col-span-2 space-y-4 sm:space-y-6">
+              {/* Stats Grid - Responsive layout */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <StatsGrid
                   iconImg="https://api.iconify.design/ic:outline-supervisor-account.svg?color=white"
                   iconBg="bg-purple-500"
@@ -102,35 +152,66 @@ const UIPage = () => {
                 />
               </div>
 
-              <div className="w-full flex flex-col lg:block">
-                {/* Show RevenueAnalytics only on large screens here */}
-                <div className="hidden lg:block">
-                  <RevenueAnalytics />
-                </div>
+              {/* Revenue Analytics - Show on medium screens and up */}
+              <div className="hidden md:block">
+                <RevenueAnalytics />
               </div>
-               {/* Add DealsStatistics here */}
             </div>
-            {/* Right column: LeadsBySource, DealsStatus, RecentActivity */}
-            <div className="flex flex-col gap-6 col-span-1   h-fit">
+
+            {/* Right column: LeadsBySource, DealsStatus - Only show as separate column on xl+ */}
+            <div className="hidden xl:block xl:col-span-1 space-y-4 sm:space-y-6">
               <LeadsBySource />
               <DealsStatus />
             </div>
           </div>
-          {/* On small screens, show RevenueAnalytics below all columns */}
-          <div className="block lg:hidden mt-6">
+
+          {/* For lg screens: Show LeadsBySource and DealsStatus in a 2-column layout below main grid */}
+          <div className="hidden lg:block xl:hidden mt-4 sm:mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <LeadsBySource />
+              <DealsStatus />
+            </div>
+          </div>
+
+          {/* For md screens: Show LeadsBySource and DealsStatus stacked */}
+          <div className="hidden md:block lg:hidden mt-4 sm:mt-6 space-y-4 sm:space-y-6">
+            <LeadsBySource />
+            <DealsStatus />
+          </div>
+
+          {/* Mobile-only sections */}
+          <div className="block sm:hidden mt-4 space-y-4">
+            <TopDeals />
+            <LeadsBySource />
+            <DealsStatus />
+          </div>
+
+          {/* For sm to md: Show LeadsBySource and DealsStatus */}
+          <div className="hidden sm:block md:hidden mt-4 sm:mt-6 space-y-4 sm:space-y-6">
+            <LeadsBySource />
+            <DealsStatus />
+          </div>
+
+          {/* Revenue Analytics for small screens */}
+          <div className="block md:hidden mt-4 sm:mt-6">
             <RevenueAnalytics />
           </div>
+
+          {/* Profit Earned for screens below xl */}
+          <div className="block xl:hidden mt-4 sm:mt-6">
+            <ProfitEarned />
+          </div>
         </div>
-        <div className="w-full px-4 mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-4  lg:grid-cols-4 gap-6">
-            <div className="md:col-span-2 lg:col-span-3  ">
+
+        {/* Bottom section: DealsStatistics and RecentActivity */}
+        <div className="w-full px-3 sm:px-4 lg:px-6 mt-4 sm:mt-6 pb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="lg:col-span-3">
               <DealsStatistics />
             </div>
-            <div className="md:col-span-1 lg:-mt-12  lg:col-span-1">
+            <div className="lg:col-span-1">
               <RecentActivity />
             </div>
-            {/* empty column for alignment on large screens */}
-            <div className="hidden lg:block"></div>
           </div>
         </div>
       </div>

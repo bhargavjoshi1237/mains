@@ -50,7 +50,10 @@ export default function DealsStatistics() {
 			{/* Header */}
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
 				<div className="flex items-center">
-					<span className="w-1 h-5 rounded bg-purple-400 mr-2"></span>
+				<div className="flex flex-col mr-2">
+            <span className="w-1 h-2 bg-[#ae97f3]"></span>
+            <span className="w-1 h-2 bg-[#97f0a2]"></span>
+          </div>
 					<span className="font-semibold text-gray-800 text-lg">
 						Deals Statistics
 					</span>
