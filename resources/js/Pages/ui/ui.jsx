@@ -9,6 +9,7 @@ import DealsStatus from "./DealsStatus";
 import RevenueAnalytics from "./RevenueAnalytics";
 import ProfitEarned from "./ProfitEarned"; // <-- Add import
 import RecentActivity from "./RecentActivity";
+import DealsStatistics from "./DealsStatistics";
 
 // Responsive dashboard grid based on provided image
 const UIPage = () => {
@@ -48,11 +49,17 @@ const UIPage = () => {
         {/* Main Dashboard Grid */}
         <div className="w-full px-4 mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 auto-rows-min">
-            {/* Left column: TargetCard, TopDeals */}
-            <div className="flex flex-col gap-6 col-span-1">
-              <TargetCard />
-              <TopDeals />
-              <ProfitEarned /> {/* <-- Add here */}
+            {/* Left column: TargetCard, TopDeals, ProfitEarned */}
+            <div className="grid g  gap-6 col-span-1 h-auto  ">
+              <div>
+                <TargetCard />
+              </div>
+              <div>
+                <TopDeals />
+              </div>
+              <div>
+                <ProfitEarned />
+              </div>
             </div>
             {/* Center column: StatsGrid cards */}
             <div className="flex flex-col gap-6 col-span-2">
@@ -94,23 +101,36 @@ const UIPage = () => {
                   statValueColor="text-green-500"
                 />
               </div>
+
               <div className="w-full flex flex-col lg:block">
                 {/* Show RevenueAnalytics only on large screens here */}
                 <div className="hidden lg:block">
                   <RevenueAnalytics />
                 </div>
               </div>
+               {/* Add DealsStatistics here */}
             </div>
-            {/* Right column: LeadsBySource, DealsStatus */}
-            <div className="flex flex-col gap-6 col-span-1">
+            {/* Right column: LeadsBySource, DealsStatus, RecentActivity */}
+            <div className="flex flex-col gap-6 col-span-1   h-fit">
               <LeadsBySource />
               <DealsStatus />
-              <RecentActivity />
             </div>
           </div>
           {/* On small screens, show RevenueAnalytics below all columns */}
           <div className="block lg:hidden mt-6">
             <RevenueAnalytics />
+          </div>
+        </div>
+        <div className="w-full px-4 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-4  lg:grid-cols-4 gap-6">
+            <div className="md:col-span-2 lg:col-span-3  ">
+              <DealsStatistics />
+            </div>
+            <div className="md:col-span-1 lg:-mt-12  lg:col-span-1">
+              <RecentActivity />
+            </div>
+            {/* empty column for alignment on large screens */}
+            <div className="hidden lg:block"></div>
           </div>
         </div>
       </div>
