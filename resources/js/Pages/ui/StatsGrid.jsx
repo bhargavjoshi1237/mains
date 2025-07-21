@@ -32,7 +32,7 @@ export default function StatsGrid({
                     )}
                 </div>
             </div>
-            
+
             {/* Main Content */}
             <div className="flex flex-col justify-center ml-3 sm:ml-4 flex-1 min-w-0">
                 <p className="text-xs sm:text-sm text-gray-500 mb-1 truncate font-medium">{mainLabel}</p>
@@ -46,7 +46,7 @@ export default function StatsGrid({
                     />
                 </a>
             </div>
-            
+
             {/* Chart & Stats */}
             <div className="flex flex-col items-end justify-between h-full py-1 sm:py-2 ml-2 sm:ml-3 flex-shrink-0">
                 <div className="w-16 sm:w-20 lg:w-24 overflow-hidden">

@@ -55,15 +55,15 @@ const TopDeals = () => (
       </div>
       <button className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1 rounded transition-colors">
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" className="sm:w-5 sm:h-5">
-          <circle cx="5" cy="12" r="2" fill="currentColor"/>
-          <circle cx="12" cy="12" r="2" fill="currentColor"/>
-          <circle cx="19" cy="12" r="2" fill="currentColor"/>
+          <circle cx="5" cy="12" r="2" fill="currentColor" />
+          <circle cx="12" cy="12" r="2" fill="currentColor" />
+          <circle cx="19" cy="12" r="2" fill="currentColor" />
         </svg>
       </button>
     </div>
-    
+
     <hr className="border-gray-200 mb-4" />
-    
+
     <div className="flex flex-col gap-3 sm:gap-4">
       {deals.map((deal, idx) => (
         <div key={idx} className="flex items-center justify-between hover:bg-gray-50 p-2 -m-2 rounded-lg transition-colors">

@@ -15,15 +15,15 @@ export default function RevenueAnalytics() {
         </div>
         <a href="#" className="text-xs sm:text-sm text-blue-500 font-semibold hover:underline self-start sm:self-auto">View All</a>
       </div>
-      
-      <hr className="border-gray-200 mb-4"/>
-      
+
+      <hr className="border-gray-200 mb-4" />
+
       <div className="text-gray-500 text-xs sm:text-sm mb-4">Revenue Analytics with sales & profit (USD)</div>
-      
+
       <div className="w-full overflow-x-auto">
         <div className="min-w-[600px] sm:min-w-0">
           <svg viewBox="0 0 800 280" width="100%" height="240" className="bg-white sm:h-64 lg:h-80">
-            {/* Y axis grid lines */}
+
             {[0, 200, 400, 600, 800, 1000].map((y, i) => (
               <line
                 key={y}
@@ -35,8 +35,8 @@ export default function RevenueAnalytics() {
                 strokeDasharray="4"
               />
             ))}
-            
-            {/* X axis labels */}
+
+
             {months.map((m, i) => (
               <text
                 key={m}
@@ -50,8 +50,8 @@ export default function RevenueAnalytics() {
                 {m}
               </text>
             ))}
-          
-            {/* Y axis labels */}
+
+
             {[0, 200, 400, 600, 800, 1000].map((y, i) => (
               <text
                 key={y}
@@ -65,8 +65,8 @@ export default function RevenueAnalytics() {
                 ${y}
               </text>
             ))}
-            
-            {/* Sales line (dashed, smooth curve) */}
+
+
             <path
               fill="none"
               stroke="#38bdf8"
@@ -80,8 +80,8 @@ export default function RevenueAnalytics() {
                 C570,60 630,140 660,120
                 C690,100 750,120 780,80"
             />
-            
-            {/* Profit line (solid, smooth curve) */}
+
+
             <path
               fill="none"
               stroke="#a78bfa"
@@ -97,8 +97,8 @@ export default function RevenueAnalytics() {
           </svg>
         </div>
       </div>
-      
-      {/* Legend */}
+
+
       <div className="flex flex-wrap gap-4 sm:gap-6 mt-4 justify-center sm:justify-start">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-gray-800 inline-block"></span>

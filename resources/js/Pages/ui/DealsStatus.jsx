@@ -29,9 +29,9 @@ export default function DealsStatus() {
           View All
         </a>
       </div>
-      
+
       <hr className="border-gray-200 mb-4" />
-      
+
       <div className="mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3 mb-4">
           <span className="text-2xl sm:text-3xl font-bold text-gray-900">4,289</span>
@@ -45,8 +45,8 @@ export default function DealsStatus() {
           </div>
         </div>
       </div>
-      
-      {/* Progress Bar */}
+
+
       <div className="w-full mb-6 sm:mb-8">
         <div className="flex w-full h-2 sm:h-2.5 rounded-full overflow-hidden bg-gray-100">
           {deals.map((deal, i) => (
@@ -61,8 +61,8 @@ export default function DealsStatus() {
           ))}
         </div>
       </div>
-      
-      {/* Deals List */}
+
+
       <div className="space-y-3 sm:space-y-4">
         {deals.map((deal) => (
           <div key={deal.label} className="flex items-center justify-between hover:bg-gray-50 p-2 -m-2 rounded-lg transition-colors">

@@ -15,9 +15,9 @@ export default function LeadsBySource() {
 			<div className="flex items-center justify-between mb-4 sm:mb-6">
 				<span className="font-semibold text-gray-700 text-sm sm:text-base flex items-center">
 					<div className="flex flex-col mr-2">
-                        <span className="w-1 h-2 bg-[#ae97f3]"></span>
-                        <span className="w-1 h-2 bg-[#97f0a2]"></span>
-                    </div>
+						<span className="w-1 h-2 bg-[#ae97f3]"></span>
+						<span className="w-1 h-2 bg-[#97f0a2]"></span>
+					</div>
 					Leads By Source
 				</span>
 				<button className="text-gray-400 hover:bg-gray-100 rounded p-1 transition-colors">
@@ -35,13 +35,13 @@ export default function LeadsBySource() {
 					</svg>
 				</button>
 			</div>
-			
+
 			<div className="flex flex-col items-center justify-center">
 				<div className="relative flex items-center justify-center mb-4 sm:mb-6">
-					<svg 
-						width="180" 
-						height="180" 
-						viewBox="0 0 180 180" 
+					<svg
+						width="180"
+						height="180"
+						viewBox="0 0 180 180"
 						className="w-40 h-40 sm:w-44 sm:h-44 lg:w-48 lg:h-48"
 					>
 						<g transform="rotate(-90 90 90)">
@@ -51,7 +51,7 @@ export default function LeadsBySource() {
 								const strokeDashoffset = sources
 									.slice(0, i)
 									.reduce((acc, s) => acc - (s.value / total) * 2 * Math.PI * 74, 0);
-								
+
 								return (
 									<circle
 										key={source.label}
@@ -77,7 +77,7 @@ export default function LeadsBySource() {
 						</span>
 					</div>
 				</div>
-				
+
 				<div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-2 w-full border-t pt-4">
 					{sources.map((source) => (
 						<div key={source.label} className="flex flex-col items-center text-center">

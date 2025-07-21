@@ -16,11 +16,11 @@ const TargetCard = () => (
         Click here
       </a>
     </div>
-    <div className="relative z-10 flex items-center justify-center flex-shrink-0">
-      <svg 
-        width="50" 
-        height="50" 
-        viewBox="0 0 72 72" 
+    <div className="scale-125 relative z-10 flex items-center justify-center flex-shrink-0">
+      <svg
+        width="50"
+        height="50"
+        viewBox="0 0 72 72"
         className="block drop-shadow-lg w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16"
       >
         <circle

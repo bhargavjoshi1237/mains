@@ -16,7 +16,7 @@ const UIPage = () => {
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check if mobile
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -27,18 +27,18 @@ const UIPage = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Prevent horizontal scroll globally
+
   useEffect(() => {
     document.body.style.overflowX = 'hidden';
     document.documentElement.style.overflowX = 'hidden';
-    
+
     return () => {
       document.body.style.overflowX = '';
       document.documentElement.style.overflowX = '';
     };
   }, []);
 
-  // Listen for sidebar state changes
+
   useEffect(() => {
     const handleSidebarState = (event) => {
       if (event.detail) {
@@ -95,11 +95,11 @@ const UIPage = () => {
           </div>
         </div>
 
-        {/* Main Dashboard Grid */}
+
         <div className="w-full px-3 sm:px-4 lg:px-6 mt-4 sm:mt-6">
-          {/* 3-column layout for xl+, 2-column for lg, 1-column for smaller */}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {/* Left column: TargetCard, TopDeals, ProfitEarned */}
+
             <div className="lg:col-span-1 xl:col-span-1 space-y-4 sm:space-y-6">
               <TargetCard />
               <div className="hidden sm:block">
@@ -110,7 +110,7 @@ const UIPage = () => {
               </div>
             </div>
 
-            {/* Center column: StatsGrid cards and RevenueAnalytics */}
+
             <div className="lg:col-span-2 xl:col-span-2 space-y-4 sm:space-y-6">
               {/* Stats Grid - Responsive layout */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -152,20 +152,20 @@ const UIPage = () => {
                 />
               </div>
 
-              {/* Revenue Analytics - Show on medium screens and up */}
+
               <div className="hidden md:block">
                 <RevenueAnalytics />
               </div>
             </div>
 
-            {/* Right column: LeadsBySource, DealsStatus - Only show as separate column on xl+ */}
+
             <div className="hidden xl:block xl:col-span-1 space-y-4 sm:space-y-6">
               <LeadsBySource />
               <DealsStatus />
             </div>
           </div>
 
-          {/* For lg screens: Show LeadsBySource and DealsStatus in a 2-column layout below main grid */}
+
           <div className="hidden lg:block xl:hidden mt-4 sm:mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <LeadsBySource />
@@ -173,37 +173,37 @@ const UIPage = () => {
             </div>
           </div>
 
-          {/* For md screens: Show LeadsBySource and DealsStatus stacked */}
+
           <div className="hidden md:block lg:hidden mt-4 sm:mt-6 space-y-4 sm:space-y-6">
             <LeadsBySource />
             <DealsStatus />
           </div>
 
-          {/* Mobile-only sections */}
+
           <div className="block sm:hidden mt-4 space-y-4">
             <TopDeals />
             <LeadsBySource />
             <DealsStatus />
           </div>
 
-          {/* For sm to md: Show LeadsBySource and DealsStatus */}
+
           <div className="hidden sm:block md:hidden mt-4 sm:mt-6 space-y-4 sm:space-y-6">
             <LeadsBySource />
             <DealsStatus />
           </div>
 
-          {/* Revenue Analytics for small screens */}
+
           <div className="block md:hidden mt-4 sm:mt-6">
             <RevenueAnalytics />
           </div>
 
-          {/* Profit Earned for screens below xl */}
+
           <div className="block xl:hidden mt-4 sm:mt-6">
             <ProfitEarned />
           </div>
         </div>
 
-        {/* Bottom section: DealsStatistics and RecentActivity */}
+
         <div className="w-full px-3 sm:px-4 lg:px-6 mt-4 sm:mt-6 pb-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
             <div className="lg:col-span-3">

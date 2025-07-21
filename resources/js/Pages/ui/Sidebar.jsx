@@ -6,7 +6,7 @@ const Sidebar = () => {
 
     const isExpanded = isDocked || isHovered;
 
-    // Dispatch sidebar state changes
+
     useEffect(() => {
         const event = new CustomEvent('sidebarStateChange', {
             detail: { docked: isDocked, hovered: isHovered }
@@ -75,7 +75,7 @@ const Sidebar = () => {
 
     return (
         <>
-            {/* Sidebar - Hidden on mobile */}
+
             <div
                 className={` hidden md:block fixed left-0 top-0 h-full bg-[#1e293b] text-white transition-all duration-300 z-50 ${isExpanded ? 'w-64' : 'w-[70px]'
                     } ${!isDocked && isHovered ? 'shadow-2xl' : ''}`}
@@ -89,7 +89,7 @@ const Sidebar = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm11-2v16" /><path d="m9 10l2 2l-2 2" /></g></svg>
                         </div>
                         {isExpanded && (
-                            <span className="text-xl font-bold">ynex</span>
+                            <span className="text-xl font-bold">CRM</span>
                         )}
                     </div>
                     {isExpanded && (
@@ -111,7 +111,7 @@ const Sidebar = () => {
                     )}
                 </div>
 
-                {/* Menu Items */}
+
                 <div className="flex-1 overflow-y-auto overflow-x-hidden py-4">
                     {menuItems.map((section, sectionIndex) => (
                         <div key={sectionIndex} className="mb-6">
@@ -173,7 +173,7 @@ const Sidebar = () => {
                                             )}
                                         </div>
 
-                                        {/* Tooltip for collapsed state */}
+
                                         {!isExpanded && (
                                             <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                                                 {item.label}
@@ -181,7 +181,7 @@ const Sidebar = () => {
                                         )}
                                     </div>
 
-                                    {/* Subitems - only show for Dashboards when expanded */}
+
                                     {item.subitems && isExpanded && (
                                         <div className="ml-8 mt-1">
                                             {item.subitems.map((subitem, subIndex) => (
@@ -198,7 +198,7 @@ const Sidebar = () => {
                     ))}
                 </div>
 
-                {/* Bottom Icons */}
+
                 <div className="border-t border-slate-600 p-4">
                     <div className={`${isExpanded ? 'grid grid-cols-3 gap-3' : 'flex flex-col gap-3'}`}>
                         {bottomIcons.map((item, index) => (
@@ -238,7 +238,7 @@ const Sidebar = () => {
                                     </div>
                                 </div>
 
-                                {/* Tooltip */}
+
                                 {!isExpanded && (
                                     <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                                         {item.tooltip}
