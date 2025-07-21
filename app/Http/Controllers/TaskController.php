@@ -10,6 +10,7 @@ use App\Repositories\TaskRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -104,7 +105,7 @@ class TaskController extends BaseController
             $this->taskRepository->update($task->id, $request->getUpdatableFields());
             DB::commit();
             return $this->sendRedirectResponse(route('task.index'), 'Task updated successfully.');
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             DB::rollBack();
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {

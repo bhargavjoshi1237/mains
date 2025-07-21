@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link, router, useForm } from '@inertiajs/react';
-
+import { Link, router, useForm,Head } from '@inertiajs/react';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 export default function Index({ tasks: initialTasks, statuses, employees, projects, user_role, errors }) {
     const [editing, setEditing] = useState({});
     const [showAdd, setShowAdd] = useState(false);
@@ -17,7 +17,6 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
         }
     ]);
 
-    // Mass edit form
     const { data, setData, post, processing, reset, errors: formErrors } = useForm({
         tasks: initialTasks.map(task => ({
             id: task.id,
@@ -114,6 +113,7 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
                 preserveScroll: true,
                 onSuccess: () => {
                     setEditing({});
+                    setMassEdit(false); // Disable mass edit after saving
                     setNewTasks([{
                         name: '',
                         description: '',
@@ -138,23 +138,6 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
                 }
             });
         }
-    };
-
-    // Handle add task
-    const handleAddTask = e => {
-        e.preventDefault();
-        router.post(route('task.store'), data.newTask, {
-            preserveScroll: true,
-            onSuccess: () => {
-                reset('newTask');
-                setShowAdd(false);
-            }
-        });
-    };
-
-    // Handle new task field change
-    const handleNewTaskChange = (field, value) => {
-        setData('newTask', { ...data.newTask, [field]: value });
     };
 
     // Toggle mass edit mode
@@ -215,200 +198,70 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
+        <AuthenticatedLayout header={
+            <div className="flex items-center justify-between w-full">
+                <h2 className="text-xl font-semibold text-gray-900">Tasks</h2>
                 <div className="flex space-x-3">
                     <button 
-                        onClick={() => setShowAdd(v => !v)}
-                        className={`px-4 py-2 rounded-md text-sm font-medium ${showAdd ? 'bg-gray-200 text-gray-800' : 'bg-black text-white'}`}
+                        onClick={() => router.get(route('task.create'))}
+                        className={`px-4 py-2 rounded-md text-sm font-medium bg-black text-white`}
                     >
-                        {showAdd ? 'Cancel' : 'Add Task'}
+                        Add Task
                     </button>
                     <button 
                         onClick={handleMassEditToggle}
-                        className={`px-4 py-2 rounded-md text-sm font-medium ${massEdit ? 'bg-gray-200 text-gray-800' : 'bg-gray-800 text-white'}`}
+                        className={`px-4 py-2 flex rounded-md text-sm font-medium ${massEdit ? 'bg-gray-200 text-gray-800' : 'bg-gray-800 text-white'}`}
                     >
-                        {massEdit ? 'Cancel Mass Edit' : 'Mass Edit'}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" className='mr-2' viewBox="0 0 24 24"><path fill="currentColor" d="M6.616 21q-.691 0-1.153-.462T5 19.385V4.615q0-.69.463-1.152T6.616 3h7.213q.323 0 .628.13t.522.349L18.52 7.02q.217.218.348.522t.131.628v2.248q0 .218-.134.379q-.133.162-.345.223q-.362.131-.666.32q-.305.19-.586.47l-5.515 5.497q-.217.217-.351.522q-.134.304-.134.628v1.734q0 .348-.23.578t-.577.23zm7.038-.808V19.12q0-.161.056-.3q.055-.14.186-.271l5.09-5.065q.148-.13.308-.19q.16-.062.32-.062q.165 0 .334.064q.17.065.298.194l.925.944q.123.148.188.308q.064.159.064.319t-.061.322t-.19.31l-5.066 5.066q-.131.13-.27.186q-.14.056-.302.056h-1.073q-.348 0-.577-.23q-.23-.23-.23-.578m5.96-4.176l.924-.956l-.925-.944l-.95.95zM14.807 8H18l-4-4l4 4l-4-4v3.192q0 .348.23.578t.578.23"/></svg>
+                      {massEdit ? 'Cancel Mass Edit' : 'Mass Edit'}
                     </button>
+                    {massEdit && Object.values(editing).some(Boolean) && (
+                        <form onSubmit={handleMassUpdate}>
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                            >
+                                {processing ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Saving...
+                                    </>
+                                ) : (
+                                    'Save All Changes'
+                                )}
+                            </button>
+                        </form>
+                    )}
                 </div>
             </div>
-
-            {/* Error messages */}
-            {(errors && Object.keys(errors).length > 0) || (formErrors && Object.keys(formErrors).length > 0) ? (
-                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-md">
-                    <div className="flex">
-                        <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                            </svg>
-                        </div>
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">
-                                There were errors with your submission
-                            </h3>
-                            <div className="mt-2 text-sm text-red-700">
-                                <ul className="list-disc pl-5 space-y-1">
-                                    {errors && Object.values(errors).map((err, i) => (
-                                        <li key={`error-${i}`}>{err}</li>
-                                    ))}
-                                    {formErrors && Object.values(formErrors).map((err, i) => (
-                                        <li key={`formError-${i}`}>{err}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+        }>
+        <Head title="Tasks" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Show normal errors at the top */}
+            {errors && Object.keys(errors).length > 0 && (
+                <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded">
+                    <ul className="list-disc pl-5 text-red-700 text-sm">
+                        {Object.entries(errors).map(([key, msg], i) => (
+                            <li key={key}>{msg}</li>
+                        ))}
+                    </ul>
                 </div>
-            ) : null}
-
-            {/* Add Task Form */}
-            {showAdd && (
-                <form onSubmit={handleAddTask} className="mb-8 bg-white shadow rounded-lg p-6">
-                    <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                        <div className="sm:col-span-6">
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                                Name
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                placeholder="Task name"
-                                value={data.newTask.name}
-                                onChange={e => handleNewTaskChange('name', e.target.value)}
-                                required
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                            />
-                            {getFieldError(formErrors, 'newTask.name', 'Name') && (
-                                <p className="mt-2 text-sm text-red-600">{getFieldError(formErrors, 'newTask.name', 'Name')}</p>
-                            )}
-                        </div>
-
-                        <div className="sm:col-span-6">
-                            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                                Description
-                            </label>
-                            <textarea
-                                id="description"
-                                rows={3}
-                                placeholder="Task description"
-                                value={data.newTask.description}
-                                onChange={e => handleNewTaskChange('description', e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                            />
-                            {getFieldError(formErrors, 'newTask.description', 'Description') && (
-                                <p className="mt-2 text-sm text-red-600">{getFieldError(formErrors, 'newTask.description', 'Description')}</p>
-                            )}
-                        </div>
-
-                        <div className="sm:col-span-2">
-                            <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-                                Status
-                            </label>
-                            <select
-                                id="status"
-                                value={data.newTask.status}
-                                onChange={e => handleNewTaskChange('status', e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                            >
-                                {statuses.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
-                            {getFieldError(formErrors, 'newTask.status', 'Status') && (
-                                <p className="mt-2 text-sm text-red-600">{getFieldError(formErrors, 'newTask.status', 'Status')}</p>
-                            )}
-                        </div>
-
-                        <div className="sm:col-span-2">
-                            <label htmlFor="assigned_to" className="block text-sm font-medium text-gray-700">
-                                Assigned To
-                            </label>
-                            <select
-                                id="assigned_to"
-                                value={data.newTask.assigned_to}
-                                onChange={e => handleNewTaskChange('assigned_to', e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                            >
-                                <option value="">Select employee</option>
-                                {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
-                            </select>
-                            {getFieldError(formErrors, 'newTask.assigned_to', 'Assigned To') && (
-                                <p className="mt-2 text-sm text-red-600">{getFieldError(formErrors, 'newTask.assigned_to', 'Assigned To')}</p>
-                            )}
-                        </div>
-
-                        <div className="sm:col-span-2">
-                            <label htmlFor="project_id" className="block text-sm font-medium text-gray-700">
-                                Project
-                            </label>
-                            <select
-                                id="project_id"
-                                value={data.newTask.project_id}
-                                onChange={e => handleNewTaskChange('project_id', e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                                disabled
-                            >
-                                <option value="">Select project</option>
-                                {projects.map(proj => <option key={proj.id} value={proj.id}>{proj.name}</option>)}
-                            </select>
-                            {getFieldError(formErrors, 'newTask.project_id', 'Project') && (
-                                <p className="mt-2 text-sm text-red-600">{getFieldError(formErrors, 'newTask.project_id', 'Project')}</p>
-                            )}
-                        </div>
-
-                        <div className="sm:col-span-3">
-                            <label htmlFor="start_date" className="block text-sm font-medium text-gray-700">
-                                Start Date
-                            </label>
-                            <input
-                                type="date"
-                                id="start_date"
-                                value={data.newTask.start_date}
-                                onChange={e => handleNewTaskChange('start_date', e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                            />
-                            {getFieldError(formErrors, 'newTask.start_date', 'Start Date') && (
-                                <p className="mt-2 text-sm text-red-600">{getFieldError(formErrors, 'newTask.start_date', 'Start Date')}</p>
-                            )}
-                        </div>
-
-                        <div className="sm:col-span-3">
-                            <label htmlFor="end_date" className="block text-sm font-medium text-gray-700">
-                                End Date
-                            </label>
-                            <input
-                                type="date"
-                                id="end_date"
-                                value={data.newTask.end_date}
-                                onChange={e => handleNewTaskChange('end_date', e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                            />
-                            {getFieldError(formErrors, 'newTask.end_date', 'End Date') && (
-                                <p className="mt-2 text-sm text-red-600">{getFieldError(formErrors, 'newTask.end_date', 'End Date')}</p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="mt-6 flex justify-end">
-                        <button
-                            type="submit"
-                            className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                            disabled={processing}
-                        >
-                            {processing ? 'Saving...' : 'Save Task'}
-                        </button>
-                    </div>
-                </form>
             )}
-
+            {/* Hide raw errors dump */}
+            {/* <pre style={{ background: '#fff0f0', color: '#b91c1c', padding: '8px', borderRadius: '6px', marginBottom: '1rem', fontSize: '12px', overflowX: 'auto' }}>
+                {JSON.stringify({ errors, formErrors }, null, 2)}
+            </pre> */}
             {/* Tasks Table */}
             <form onSubmit={handleMassUpdate}>
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    ID
-                                </th>
+                                
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Name
                                 </th>
@@ -439,9 +292,7 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
                             {data.tasks && data.tasks.length > 0 ? (
                                 data.tasks.map((task, idx) => (
                                     <tr key={task.id} className={editing[idx] ? 'bg-blue-50' : 'hover:bg-gray-50'}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {task.id}
-                                        </td>
+                                       
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {editing[idx] ? (
                                                 <div>
@@ -491,7 +342,7 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
                                                     )}
                                                 </div>
                                             ) : (
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[task.status] || 'bg-gray-100 text-gray-800'}`}>
+                                                <span className={`border border-[#474747] px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[task.status] || 'bg-gray-100 text-gray-800'}`}>
                                                     {task.status}
                                                 </span>
                                             )}
@@ -557,6 +408,13 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex justify-end space-x-2">
+                                                <Link
+                                                    type="button"
+                                                    href={route('task.show', task.id)}
+                                                    className="text-sm text-black hover:text-gray-500 mx-2"
+                                                >
+                                                    View
+                                                </Link>
                                                 {!massEdit && (
                                                     <button
                                                         type="button"
@@ -573,6 +431,7 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
                                                 >
                                                     Delete
                                                 </button>
+                                                
                                             </div>
                                         </td>
                                     </tr>
@@ -589,27 +448,7 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
                 </div>
 
                 {/* Mass Edit Controls */}
-                {(data.tasks && data.tasks.length > 0) && (
-                    <div className="mt-4 flex justify-end">
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                        >
-                            {processing ? (
-                                <>
-                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Saving...
-                                </>
-                            ) : (
-                                'Save All Changes'
-                            )}
-                        </button>
-                    </div>
-                )}
+                
             </form>
 
             {/* Mass Add Tasks Section */}
@@ -743,6 +582,6 @@ export default function Index({ tasks: initialTasks, statuses, employees, projec
                     </div>
                 </div>
             )}
-        </div>
+        </div> </AuthenticatedLayout>
     );
 }

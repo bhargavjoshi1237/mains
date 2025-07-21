@@ -139,6 +139,9 @@ Route::delete('/project/{project}', [ProjectController::class, 'destroy'])
 Route::post('/tasks/bulk-sync', [TaskController::class, 'bulkSync'])->name('tasks.bulkSync');
 Route::post('/task/batch-update', [TaskController::class, 'batchUpdate'])->name('task.batchUpdate');
 
+Route::get('/ui', function () {
+    return Inertia::render('ui/ui');
+})->name('ui');
 
 // Route::resource('project', ProjectController::class);
 
