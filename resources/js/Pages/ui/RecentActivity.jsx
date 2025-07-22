@@ -71,36 +71,32 @@ const activities = [
   },
 ];
 
-const RecentActivity = () => (
-  <div className="bg-white rounded-xl shadow p-5 lg:-mt-10 w-full">
-   
+const RecentActivity = ({ theme }) => (
+  <div className={`rounded-xl shadow p-5     sm:-mt-0 md:mt-0 w-full ${theme === 'dark' ? 'bg-[#191919]' : 'bg-white'}`}>
     <div className="flex items-center justify-between mb-3">
       <div className="flex flex-col">
-        <span className="w-1 h-2   bg-[#ae97f3] mr-2"></span>
-        <span className="w-1 h-2  bg-[#97f0a2] mr-2"></span>
+        <span className="w-1 h-2 bg-[#ae97f3] mr-2"></span>
+        <span className="w-1 h-2 bg-[#97f0a2] mr-2"></span>
       </div>
-      <span className="mr-auto  font-semibold text-gray-800 text-lg">Recent Activity</span>
-      <a href="#" className="text-xs text-blue-500 font-semibold hover:underline">View All</a>
+      <span className={`mr-auto font-semibold text-lg ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>Recent Activity</span>
+      <a href="#" className={`text-xs font-semibold hover:underline ${theme === 'dark' ? 'text-blue-400' : 'text-blue-500'}`}>View All</a>
     </div>
 
-    <hr className="mt-6 z-10 w-[110%] -ml-[5%]" />
+    <hr className={`mt-6 z-10 w-[110%] -ml-[5%] ${theme === 'dark' ? 'border-gray-700' : ''}`} />
     <div className="relative pl-10 mt-6 -ml-2">
-
-      <div className="absolute left-5 top-6 bottom-6 w-0.5 -mt-2  border-l-2 border-dashed border-gray-300 z-0"></div>
+      <div className={`absolute left-5 top-6 bottom-6 w-0.5 -mt-2 border-l-2 border-dashed z-0 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}`}></div>
       <ul className="space-y-8 mt-6">
         {activities.map((item, idx) => (
           <li key={idx} className="relative flex items-start ml-[-0.156rem]">
-
             <span
-              className={`absolute -mt-1.5  -ml-6 top-2 w-4 h-4 rounded-full ${item.color} border-2 border-white shadow z-10`}
+              className={`absolute -mt-1.5 -ml-6 top-2 w-4 h-4 rounded-full ${item.color} border-2 shadow z-10 ${theme === 'dark' ? 'border-gray-800' : 'border-white'}`}
             ></span>
-
-            <div className="flex-1 ml-4 ">
+            <div className="flex-1 ml-4">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-800 leading-snug">{item.title}</div>
-                <span className="text-xs text-gray-400 ml-2">{item.time}</span>
+                <div className={`text-sm leading-snug ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>{item.title}</div>
+                <span className={`text-xs ml-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`}>{item.time}</span>
               </div>
-              {item.desc && <div className="text-xs mt-1">{item.desc}</div>}
+              {item.desc && <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : ''}`}>{item.desc}</div>}
             </div>
           </li>
         ))}

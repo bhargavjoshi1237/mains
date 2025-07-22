@@ -2,28 +2,35 @@ import React from "react";
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export default function RevenueAnalytics() {
+export default function RevenueAnalytics({ theme = "light" }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 w-full min-w-0">
+    <div className={`rounded-xl border ${theme === 'dark' ? 'border-gray-700' : ''} shadow-sm border p-4 sm:p-6 w-full min-w-0 ${theme === "dark"
+      ? "bg-[#191919] border-gray-700"
+      : "bg-white border-gray-100"
+      }`}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
         <div className="flex items-center">
           <div className="flex flex-col mr-2">
             <span className="w-1 h-2 bg-[#ae97f3]"></span>
             <span className="w-1 h-2 bg-[#97f0a2]"></span>
           </div>
-          <span className="font-semibold text-gray-900 text-base sm:text-lg">Revenue Analytics</span>
+          <span className={`font-semibold text-base sm:text-lg ${theme === "dark" ? "text-gray-100" : "text-gray-900"
+            }`}>Revenue Analytics</span>
         </div>
-        <a href="#" className="text-xs sm:text-sm text-blue-500 font-semibold hover:underline self-start sm:self-auto">View All</a>
+        <a href="#" className={`text-xs sm:text-sm font-semibold hover:underline self-start sm:self-auto ${theme === "dark" ? "text-blue-400" : "text-blue-500"
+          }`}>View All</a>
       </div>
 
-      <hr className="border-gray-200 mb-4" />
+      <hr className={`mb-4 ${theme === "dark" ? "border-gray-700" : "border-gray-200"
+        }`} />
 
-      <div className="text-gray-500 text-xs sm:text-sm mb-4">Revenue Analytics with sales & profit (USD)</div>
+      <div className={`text-xs sm:text-sm mb-4 ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+        }`}>Revenue Analytics with sales & profit (USD)</div>
 
       <div className="w-full overflow-x-auto">
         <div className="min-w-[600px] sm:min-w-0">
-          <svg viewBox="0 0 800 280" width="100%" height="240" className="bg-white sm:h-64 lg:h-80">
-
+          <svg viewBox="0 0 800 280" width="100%" height="240" className={`sm:h-64 lg:h-80 ${theme === "dark" ? "bg-[#191919]" : "bg-white"
+            }`}>
             {[0, 200, 400, 600, 800, 1000].map((y, i) => (
               <line
                 key={y}
@@ -31,11 +38,10 @@ export default function RevenueAnalytics() {
                 x2="780"
                 y1={260 - (y / 1000) * 240}
                 y2={260 - (y / 1000) * 240}
-                stroke="#e5e7eb"
+                stroke={theme === "dark" ? "#4b5563" : "#e5e7eb"}
                 strokeDasharray="4"
               />
             ))}
-
 
             {months.map((m, i) => (
               <text
@@ -43,7 +49,7 @@ export default function RevenueAnalytics() {
                 x={60 + i * 60}
                 y={275}
                 fontSize="11"
-                fill="#6b7280"
+                fill={theme === "dark" ? "#9ca3af" : "#6b7280"}
                 textAnchor="middle"
                 className="sm:text-xs"
               >
@@ -51,21 +57,19 @@ export default function RevenueAnalytics() {
               </text>
             ))}
 
-
             {[0, 200, 400, 600, 800, 1000].map((y, i) => (
               <text
                 key={y}
                 x={48}
                 y={260 - (y / 1000) * 240 + 4}
                 fontSize="11"
-                fill="#6b7280"
+                fill={theme === "dark" ? "#9ca3af" : "#6b7280"}
                 textAnchor="end"
                 className="sm:text-xs"
               >
                 ${y}
               </text>
             ))}
-
 
             <path
               fill="none"
@@ -98,19 +102,22 @@ export default function RevenueAnalytics() {
         </div>
       </div>
 
-
       <div className="flex flex-wrap gap-4 sm:gap-6 mt-4 justify-center sm:justify-start">
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-gray-800 inline-block"></span>
-          <span className="text-xs sm:text-sm text-gray-700 font-medium">Sales</span>
+          <span className={`w-3 h-3 rounded-full inline-block ${theme === "dark" ? "bg-gray-300" : "bg-gray-800"
+            }`}></span>
+          <span className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>Sales</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#38bdf8] inline-block"></span>
-          <span className="text-xs sm:text-sm text-gray-700 font-medium">Revenue</span>
+          <span className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>Revenue</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#a78bfa] inline-block"></span>
-          <span className="text-xs sm:text-sm text-gray-700 font-medium">Profit</span>
+          <span className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}>Profit</span>
         </div>
       </div>
     </div>

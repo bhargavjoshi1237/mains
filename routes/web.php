@@ -143,6 +143,9 @@ Route::get('/ui', function () {
     return Inertia::render('ui/ui');
 })->name('ui');
 
+Route::get('/xd', function () {
+    return Inertia::render('ui/xd');
+})->name('xd');
 // Route::resource('project', ProjectController::class);
 
 require __DIR__ . '/auth.php';

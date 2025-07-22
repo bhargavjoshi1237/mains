@@ -1,18 +1,24 @@
 import React from "react";
 
-const TargetCard = () => (
-  <div className="bg-[#8b5cf6] rounded-lg p-4 sm:p-6 flex items-center gap-3 sm:gap-4 w-full min-w-0 h-auto relative overflow-hidden">
-    <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
-      background: "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80') center/cover"
+const TargetCard = ({ theme }) => (
+  <div className={`rounded-lg p-4 sm:p-6 flex items-center gap-3 sm:gap-4 w-full min-w-0 h-auto relative overflow-hidden bg-[#8b5cf6]
+    }`}>
+    <div className="absolute inset-0 opacity-20 pointer-events-none bg-cover bg-center" style={{
+      backgroundImage: "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80')"
     }} />
     <div className="relative z-10 flex-1 min-w-0">
       <h3 className="text-white font-extrabold text-sm sm:text-base lg:text-lg mb-2 leading-tight">
         Your target is incomplete
       </h3>
-      <p className="font-medium text-[#dadada] text-xs sm:text-sm mb-2 sm:mb-3 leading-relaxed">
-        You have completed <span className="font-bold text-[#ffe066]">48%</span> of the given target, you can also check your status.
+      <p className={`font-medium text-xs sm:text-xs leading-relaxed ${theme === "dark" ? "text-gray-300" : "text-[#dadada]"
+        }`}>
+        You have completed <span className={`font-bold ${theme === "dark" ? "text-yellow-400" : "text-[#ffe066]"
+          }`}>48%</span> of the given target, you can also check your status.
       </p>
-      <a href="#" className="text-white underline font-bold text-xs sm:text-sm hover:text-[#ffe066] transition-colors">
+      <a href="#" className={`underline font-bold text-xs sm:text-sm transition-colors ${theme === "dark"
+        ? "text-gray-200 hover:text-yellow-400"
+        : "text-white hover:text-[#ffe066]"
+        }`}>
         Click here
       </a>
     </div>
@@ -28,7 +34,7 @@ const TargetCard = () => (
           cy="36"
           r="30"
           fill="none"
-          stroke="#c7bfff"
+          stroke="#c4c4c4"
           strokeWidth="6"
         />
         <circle

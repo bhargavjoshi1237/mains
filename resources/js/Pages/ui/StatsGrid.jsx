@@ -7,9 +7,10 @@ export default function StatsGrid({
     mainValue = "1,02,890",
     statValue = "+40%",
     statSub = "this month",
-    statValueColor = "text-green-500"
+    statValueColor = "text-green-500",
+    theme = "light"
 }) {
-    // Map Tailwind bg color to hex for the chart stroke
+
     const colorMap = {
         "bg-purple-500": "#a78bfa",
         "bg-blue-500": "#3b82f6",
@@ -19,10 +20,13 @@ export default function StatsGrid({
     const chartStroke = colorMap[iconBg] || "#a78bfa";
 
     return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 flex items-center min-w-0 w-full h-[120px] sm:h-[130px] lg:h-[140px] px-3 sm:px-4 py-3 transition-all duration-200 hover:shadow-md overflow-hidden">
-            {/* Icon */}
-            <div className="flex items-center justify-center flex-shrink-0">
-                <div className={`${iconBg} -mt-8 rounded-full w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 flex items-center justify-center shadow-sm`}>
+        <div className={`rounded-lg shadow-sm   flex items-center min-w-0 w-full h-[120px] sm:h-[130px] lg:h-[140px] px-3 sm:px-4 py-3 transition-all duration-200   overflow-hidden ${theme === "dark"
+                ? "bg-[#191919]  "
+                : "bg-white border-gray-100"
+            }`}>
+
+            <div className="flex items-center justify-center flex-shrink-0 -mt-1">
+                <div className={`${iconBg} -mt-12 rounded-full w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 flex items-center justify-center shadow-sm`}>
                     {iconImg && (
                         <img
                             src={iconImg}
@@ -33,11 +37,16 @@ export default function StatsGrid({
                 </div>
             </div>
 
-            {/* Main Content */}
+
             <div className="flex flex-col justify-center ml-3 sm:ml-4 flex-1 min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500 mb-1 truncate font-medium">{mainLabel}</p>
-                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2 tracking-tight truncate">{mainValue}</p>
-                <a href="#" className="flex items-center text-purple-600 text-xs sm:text-sm font-semibold hover:text-purple-700 hover:underline transition-colors">
+                <p className={`text-xs sm:text-sm mb-1 truncate font-medium ${theme === "dark" ? "text-[#FFFFFFB3]" : "text-gray-500"
+                    }`}>{mainLabel}</p>
+                <p className={`text-lg sm:text-xl lg:text-2xl font-bold mb-1 sm:mb-2 tracking-tight truncate ${theme === "dark" ? "text-[#FFFFFFB3]" : "text-gray-900"
+                    }`}>{mainValue}</p>
+                <a href="#" className={`flex items-center mt-2 text-xs sm:text-sm font-normal transition-colors ${theme === "dark"
+                        ? "text-purple-400 hover:text-purple-300 hover:underline"
+                        : "text-purple-600 hover:text-purple-700 hover:underline"
+                    }`}>
                     View All
                     <img
                         src="https://api.iconify.design/ic:round-arrow-forward.svg?color=%237c3aed"
@@ -47,8 +56,8 @@ export default function StatsGrid({
                 </a>
             </div>
 
-            {/* Chart & Stats */}
-            <div className="flex flex-col items-end justify-between h-full py-1 sm:py-2 ml-2 sm:ml-3 flex-shrink-0">
+
+            <div className="flex flex-col  items-end justify-between h-full py-1 sm:py-2 ml-2 sm:ml-3 flex-shrink-0">
                 <div className="w-16 sm:w-20 lg:w-24 overflow-hidden">
                     <svg width="100%" height="28" viewBox="0 0 80 28" fill="none" className="mb-1 block sm:h-8">
                         <path
@@ -61,7 +70,7 @@ export default function StatsGrid({
                         />
                     </svg>
                 </div>
-                <div className="flex flex-col items-end">
+                <div className="flex   flex-col items-end">
                     <span className={`${statValueColor} font-bold text-xs sm:text-sm leading-none mb-0.5`}>{statValue}</span>
                     <span className="text-xs text-gray-400 leading-none">{statSub}</span>
                 </div>
