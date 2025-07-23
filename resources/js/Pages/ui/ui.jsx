@@ -59,7 +59,7 @@ const UIPage = () => {
   const sidebarWidth = sidebarDocked || sidebarHovered ? 256 : 70;
 
   return (
-    <div className={`min-h-screen overflow-x-hidden ${theme === "dark" ? "" : ""}`} style={theme === "dark" ? { backgroundColor: "#252729" } : {}}>
+    <div className={`min-h-screen overflow-x-hidden ${theme === "dark" ? "bg-neutral-900" : "bg-neutral-50"}`}>
       <Sidebar theme={theme} />
       <Navbar
         sidebarWidth={isMobile ? 0 : sidebarWidth}
@@ -86,16 +86,16 @@ const UIPage = () => {
                 Track your sales activity, leads and details here.
               </p>
             </div>
-            <div className="flex gap-3 items-center justify-start sm:gap-3 w-full sm:w-auto">
-              <button className="bg-[#845adf] h-9 text-white px-3 py-2 rounded-md flex items-center justify-center text-xs sm:text-sm font-medium hover:bg-purple-600 transition-colors">
+            <div className="flex  gap-3 items-center justify-start sm:gap-3 w-full sm:w-auto">
+              <button className="bg-[#845adf] h-10 text-white mt-2 px-3 py-2 rounded-md flex items-center justify-center text-xs sm:text-sm font-medium hover:bg-purple-600 transition-colors">
                 <img
                   src="https://api.iconify.design/ic:baseline-filter-list.svg?color=white"
                   alt="Filter"
                   className="w-4 h-4 mr-2"
                 />
-                Filters
+                <p className="-mt-0.5">Filters</p>
               </button>
-              <button className="bg-transparent border border-[#23B7E5] hover:bg-[#23B7E5] hover:text-white h-9 text-[#23B7E5] px-3 py-2 rounded-lg flex items-center justify-center text-xs sm:text-sm font-medium  transition-colors">
+              <button className="bg-transparent mr-2 border border-[#23B7E5] hover:bg-[#23B7E5] hover:text-white h-10 mt-1.5 text-[#23B7E5] px-3 py-2 rounded-lg flex items-center justify-center text-xs sm:text-sm font-medium  transition-colors">
                 <img
                   src="https://api.iconify.design/ic:outline-cloud-download.svg?color=%2323B7E5"
                   alt="Download"
@@ -208,8 +208,6 @@ const UIPage = () => {
             <ProfitEarned theme={theme} />
           </div>
         </div>
-
-
 
         <div className="w-full px-3 sm:px-4 lg:px-6 mt-4 sm:mt-6 pb-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">

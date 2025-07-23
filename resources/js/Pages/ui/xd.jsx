@@ -16,13 +16,13 @@ const XDPage = () => {
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [theme, setTheme] = useState('light');
 
-  const sidebarWidth = sidebarDocked || sidebarHovered ? 256 : 70;
+  const sidebarWidth = sidebarDocked || sidebarHovered ? 256 : 0;
 
   return (
     <div className={`min-h-screen overflow-x-hidden ${theme === "dark" ? "" : ""}`} style={theme === "dark" ? { backgroundColor: "#252729" } : {}}>
 
       <div className="hidden lg:block">
-        <Sidebar theme={theme} />
+   
       </div>
       <Navbar
         sidebarWidth={sidebarWidth}
@@ -30,7 +30,7 @@ const XDPage = () => {
         onThemeChange={setTheme}
       />
       <div
-        className={`min-h-screen transition-all duration-300 pt-14 overflow-x-hidden ${sidebarDocked || sidebarHovered ? "lg:ml-[256px]" : "lg:ml-[70px]"} ml-0`}
+        className={`min-h-screen transition-all duration-300 pt-14 overflow-x-hidden  ml-0`}
         style={{
           backgroundColor: theme === "dark" ? "#252729" : "#f0f1f7"
         }}
@@ -67,13 +67,13 @@ const XDPage = () => {
           </div>
         </div>
         <div className="w-full px-3 sm:px-4 lg:px-6 mt-4 sm:mt-6 flex flex-col gap-4 sm:gap-6 lg:hidden">
-
           <TargetCard theme={theme} />
           <TopDeals theme={theme} />
           <ProfitEarned theme={theme} />
           <LeadsBySource theme={theme} />
-          <DealsStatus theme={theme} />
-          <RevenueAnalytics theme={theme} />
+          {/* Remove DealsStatus and RevenueAnalytics here to avoid duplicate rendering on small screens */}
+          {/* <DealsStatus theme={theme} /> */}
+          {/* <RevenueAnalytics theme={theme} /> */}
         </div>
 
         <div className="w-full px-3 sm:px-4 lg:px-6 mt-4 sm:mt-6">
@@ -137,11 +137,6 @@ const XDPage = () => {
             </div>
           </div>
         </div>
-
-
-
-
-
         <div className="w-full px-3 sm:px-4 lg:px-6 mt-4 sm:mt-6 pb-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
             <div className="lg:col-span-3">

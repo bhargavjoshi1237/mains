@@ -15,9 +15,9 @@ const yTicks = [100, 80, 60, 40, 20, 0];
 
 const ProfitEarned = ({ theme = "light" }) => (
 	<div
-		className={`border rounded-xl shadow p-4 w-full ${theme === "dark"
-				? "bg-[#191919] border-gray-700"
-				: "bg-white border-gray-200"
+		className={`  rounded-xl shadow p-4 w-full ${theme === "dark"
+				? "bg-darkBg border-gray-700"
+				: "bg-lightBg border-gray-200"
 			}`}
 	>
 
@@ -28,7 +28,7 @@ const ProfitEarned = ({ theme = "light" }) => (
 					<span className="w-1 h-2 bg-[#97f0a2] mr-2"></span>
 				</div>
 				<span
-					className={`font-semibold text-lg ${theme === "dark" ? "text-gray-100" : "text-gray-800"
+					className={`font-semibold text-md ${theme === "dark" ? "text-primaryText" : "text-gray-800"
 						}`}
 				>
 					Profit Earned
@@ -36,7 +36,7 @@ const ProfitEarned = ({ theme = "light" }) => (
 			</div>
 			<div className="flex items-center gap-1 cursor-pointer">
 				<span
-					className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-500"
+					className={`text-xs font-medium ${theme === "dark" ? "text-secondaryText" : "text-gray-500"
 						}`}
 				>
 					View All
@@ -71,7 +71,7 @@ const ProfitEarned = ({ theme = "light" }) => (
 				>
 					{yTicks.map((v) => (
 						<div key={v} className="flex items-center h-0">
-							<span className="text-[10px] text-gray-400 w-6 text-right">
+							<span className="text-[10px] text-secondaryText w-6 text-right">
 								{v}
 							</span>
 							<div className="flex-1 border-t border-gray-400 ml-1"></div>
@@ -102,7 +102,7 @@ const ProfitEarned = ({ theme = "light" }) => (
 
 							<span
 								className={`text-xs mt-2 ${theme === "dark"
-										? "text-gray-400"
+										? "text-secondaryText"
 										: "text-gray-500"
 									}`}
 							>

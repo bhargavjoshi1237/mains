@@ -47,8 +47,8 @@ export default function DealsStatistics({ theme = "light" }) {
 	return (
 		<>
 			<div className={`rounded-xl shadow p-4   w-full max-w-full overflow-x-auto ${theme === "dark"
-					? "bg-[#191919] border-gray-700"
-					: "bg-white"
+					? "bg-darkBg border-gray-700"
+					: "bg-lightBg"
 				}`}>
 				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
 					<div className="flex items-center">
@@ -56,7 +56,7 @@ export default function DealsStatistics({ theme = "light" }) {
 							<span className="w-1 h-2 bg-[#ae97f3]"></span>
 							<span className="w-1 h-2 bg-[#97f0a2]"></span>
 						</div>
-						<span className={`font-semibold text-lg ${theme === "dark" ? "text-gray-100" : "text-gray-800"
+						<span className={`font-semibold text-md ${theme === "dark" ? "text-primaryText" : "text-gray-800"
 							}`}>
 							Deals Statistics
 						</span>
@@ -90,31 +90,31 @@ export default function DealsStatistics({ theme = "light" }) {
 						<thead>
 							<tr className={`border-b ${theme === "dark" ? "border-gray-700" : ""
 								}`}>
-								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-primaryText" : "text-gray-600"
 									}`}>
 									<input type="checkbox" />
 								</th>
-								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-primaryText" : "text-gray-600"
 									}`}>
 									Sales Rep
 								</th>
-								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-primaryText" : "text-gray-600"
 									}`}>
 									Category
 								</th>
-								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-primaryText" : "text-gray-600"
 									}`}>
 									Mail
 								</th>
-								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-primaryText" : "text-gray-600"
 									}`}>
 									Location
 								</th>
-								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-primaryText" : "text-gray-600"
 									}`}>
 									Date
 								</th>
-								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+								<th className={`py-2 sm:py-3 px-1 sm:px-2 font-semibold text-left ${theme === "dark" ? "text-primaryText" : "text-gray-600"
 									}`}>
 									Action
 								</th>
@@ -135,14 +135,14 @@ export default function DealsStatistics({ theme = "light" }) {
 											alt={deal.name}
 											className="w-7 h-7 ml-4 sm:w-8 sm:h-8 rounded-full"
 										/>
-										<span className={`font-medium truncate max-w-[80px] sm:max-w-none ${theme === "dark" ? "text-gray-100" : "text-gray-800"
+										<span className={`font-medium truncate max-w-[80px] sm:max-w-none ${theme === "dark" ? "text-primaryText" : "text-gray-800"
 											}`}>
 											{deal.name}
 										</span>
 									</td>
-									<td className={`py-2 sm:py-3    px-1 sm:px-2 pl-3 border-l ${theme === "dark" ? "border-purple-900" : "border-purple-200"} ${theme === "dark" ? "text-gray-300" : "text-gray-800"
+									<td className={`py-2 sm:py-3    px-1 sm:px-2 pl-3 border-l ${theme === "dark" ? "border-purple-900" : "border-purple-200"} ${theme === "dark" ? "text-secondaryText" : "text-gray-800"
 										}`}>{deal.category}</td>
-									<td className={`py-2 sm:py-3 px-1 sm:px-2 pl-3 truncate max-w-[100px] sm:max-w-none border-l ${theme === "dark" ? "border-purple-900" : "border-purple-200"} ${theme === "dark" ? "text-gray-300" : "text-gray-800"
+									<td className={`py-2 sm:py-3 px-1 sm:px-2 pl-3 truncate max-w-[100px] sm:max-w-none border-l ${theme === "dark" ? "border-purple-900" : "border-purple-200"} ${theme === "dark" ? "text-secondaryText" : "text-gray-800"
 										}`}>{deal.mail}</td>
 									<td className={`py-2 sm:py-3 px-1 sm:px-2 pl-3 border-l ${theme === "dark" ? "border-purple-900" : "border-purple-200"}`}>
 										<span
@@ -151,7 +151,7 @@ export default function DealsStatistics({ theme = "light" }) {
 											{deal.location.label}
 										</span>
 									</td>
-									<td className={`py-2 sm:py-3 px-1 sm:px-2 pl-3 border-l ${theme === "dark" ? "border-purple-900" : "border-purple-200"} ${theme === "dark" ? "text-gray-300" : "text-gray-800"
+									<td className={`py-2 sm:py-3 px-1 sm:px-2 pl-3 border-l ${theme === "dark" ? "border-purple-900" : "border-purple-200"} ${theme === "dark" ? "text-secondaryText" : "text-gray-800"
 										}`}>{deal.date}</td>
 									<td className={`py-2 sm:py-3 px-1 sm:px-2 pl-3 flex gap-2 border-l ${theme === "dark" ? "border-purple-900" : "border-purple-200"}`}>
 										<button className="bg-green-100 text-green-600 p-2 rounded-lg">
@@ -181,7 +181,7 @@ export default function DealsStatistics({ theme = "light" }) {
 					</table>
 				</div>
 
-				<div className={`flex flex-col sm:flex-row items-center justify-between mt-4 text-xs sm:text-sm gap-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+				<div className={`flex flex-col sm:flex-row items-center justify-between mt-4 text-xs sm:text-sm gap-2 ${theme === "dark" ? "text-secondaryText" : "text-gray-500"
 					}`}>
 					<span>Showing 5 Entries &rarr;</span>
 					<div className="flex items-center gap-2">

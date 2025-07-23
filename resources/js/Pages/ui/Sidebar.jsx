@@ -77,7 +77,7 @@ const Sidebar = ({ theme }) => {
         <>
 
             <div
-                className={`hidden md:block fixed left-0 top-0 h-full transition-all duration-300 z-50 ${isExpanded ? 'w-64' : 'w-[70px]'} ${theme === "dark" ? "bg-[#191919] text-white border-r border-[#474747]" : "bg-[#1e293b]  text-gray-800"} ${!isDocked && isHovered ? 'shadow-2xl' : ''}`}
+                className={`hidden md:block fixed left-0 top-0 h-full transition-all duration-300 z-50 ${isExpanded ? 'w-64' : 'w-[70px]'} ${theme === "dark" ? "bg-darkBg text-primaryText border-r border-[#474747]" : "bg-[#1e293b]  text-tertiaryText"} ${!isDocked && isHovered ? 'shadow-2xl' : ''}`}
                 onMouseEnter={() => !isDocked && setIsHovered(true)}
                 onMouseLeave={() => !isDocked && setIsHovered(false)}
             >
@@ -142,7 +142,7 @@ const Sidebar = ({ theme }) => {
 
                                             {isExpanded && (
                                                 <>
-                                                    <span className="flex-1 text-sm text-white font-medium">{item.label}</span>
+                                                    <span className="flex-1 text-sm text-primaryText font-medium">{item.label}</span>
                                                     <div className="flex items-center gap-2">
                                                         {item.badge && (
                                                             <span className={`px-2 py-0.5 text-xs font-semibold rounded ${item.badge === "New"

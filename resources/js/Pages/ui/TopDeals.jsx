@@ -45,9 +45,9 @@ const deals = [
 
 const TopDeals = ({ theme = "light" }) => (
 	<div
-		className={`rounded-lg shadow-sm   p-4 sm:p-5 flex flex-col w-full min-w-0 h-auto ${theme === "dark"
-				? "bg-[#191919] border-gray-700"
-				: "bg-white border-gray-100"
+		className={`rounded-lg shadow-sm   p-4 sm:p-3.5 flex flex-col w-full min-w-0 h-auto ${theme === "dark"
+				? "bg-darkBg border-gray-700"
+				: "bg-lightBg border-gray-100"
 			}`}
 	>
 		<div className="flex items-center justify-between mb-4 -ml-1.5">
@@ -88,7 +88,7 @@ const TopDeals = ({ theme = "light" }) => (
 				}`}
 		/>
 
-		<div className="flex flex-col gap-3 sm:gap-4">
+		<div className="flex flex-col pl-2 pt-1 gap-3 sm:gap-4">
 			{deals.map((deal, idx) => (
 				<div
 					key={idx}
@@ -111,13 +111,13 @@ const TopDeals = ({ theme = "light" }) => (
 						)}
 						<div className="flex-1 min-w-0">
 							<div
-								className={`mb-1 font-semibold text-sm leading-tight truncate ${theme === "dark" ? "text-gray-100" : "text-gray-900"
+								className={`mb-1 font-semibold text-sm leading-tight truncate ${theme === "dark" ? "text-primaryText" : "text-gray-900"
 									}`}
 							>
 								{deal.name}
 							</div>
 							<div
-								className={`text-xs leading-tight truncate ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+								className={`text-xs leading-tight truncate ${theme === "dark" ? "text-secondaryText" : "text-gray-500"
 									}`}
 							>
 								{deal.email}
@@ -125,7 +125,7 @@ const TopDeals = ({ theme = "light" }) => (
 						</div>
 					</div>
 					<div
-						className={`font-semibold text-sm sm:text-base flex-shrink-0 ml-2 ${theme === "dark" ? "text-gray-100" : "text-gray-900"
+						className={`font-semibold -mt-4 text-sm sm:text-base items-center text-start  flex-shrink-0  ${theme === "dark" ? "text-primaryText" : "text-gray-900"
 							}`}
 					>
 						{deal.amount}

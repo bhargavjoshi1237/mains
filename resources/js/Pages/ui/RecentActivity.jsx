@@ -72,15 +72,36 @@ const activities = [
 ];
 
 const RecentActivity = ({ theme }) => (
-  <div className={`rounded-xl shadow p-5     sm:-mt-0 md:mt-0 w-full ${theme === 'dark' ? 'bg-[#191919]' : 'bg-white'}`}>
+  <div className={`rounded-xl shadow p-5     sm:-mt-0 md:mt-0 w-full ${theme === 'dark' ? 'bg-darkBg' : 'bg-lightBg'}`}>
     <div className="flex items-center justify-between mb-3">
       <div className="flex flex-col">
         <span className="w-1 h-2 bg-[#ae97f3] mr-2"></span>
         <span className="w-1 h-2 bg-[#97f0a2] mr-2"></span>
       </div>
-      <span className={`mr-auto font-semibold text-lg ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>Recent Activity</span>
-      <a href="#" className={`text-xs font-semibold hover:underline ${theme === 'dark' ? 'text-blue-400' : 'text-blue-500'}`}>View All</a>
-    </div>
+      <span className={`mr-auto font-semibold text-md ${theme === 'dark' ? 'text-primaryText' : 'text-gray-800'}`}>Recent Activity</span>
+      <div className="flex items-center gap-1 cursor-pointer">
+				<span
+					className={`text-xs font-medium ${theme === "dark" ? "text-secondaryText" : "text-gray-500"
+						}`}
+				>
+					View All
+				</span>
+				<svg
+					width="16"
+					height="16"
+					fill="none"
+					className={
+						theme === "dark" ? "text-gray-400" : "text-gray-400"
+					}
+				>
+					<path
+						d="M4 6l4 4 4-4"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+					/>
+				</svg>
+			</div>    </div>
 
     <hr className={`mt-6 z-10 w-[110%] -ml-[5%] ${theme === 'dark' ? 'border-gray-700' : ''}`} />
     <div className="relative pl-10 mt-6 -ml-2">
@@ -93,10 +114,10 @@ const RecentActivity = ({ theme }) => (
             ></span>
             <div className="flex-1 ml-4">
               <div className="flex items-center justify-between">
-                <div className={`text-sm leading-snug ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>{item.title}</div>
-                <span className={`text-xs ml-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`}>{item.time}</span>
+                <div className={`text-sm leading-snug ${theme === 'dark' ? 'text-primaryText' : 'text-gray-800'}`}>{item.title}</div>
+                <span className={`text-xs ml-2 ${theme === 'dark' ? 'text-secondaryText' : 'text-secondaryText'}`}>{item.time}</span>
               </div>
-              {item.desc && <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : ''}`}>{item.desc}</div>}
+              {item.desc && <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-secondaryText' : ''}`}>{item.desc}</div>}
             </div>
           </li>
         ))}

@@ -4,27 +4,48 @@ const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 
 export default function RevenueAnalytics({ theme = "light" }) {
   return (
-    <div className={`rounded-xl border ${theme === 'dark' ? 'border-gray-700' : ''} shadow-sm border p-4 sm:p-6 w-full min-w-0 ${theme === "dark"
-      ? "bg-[#191919] border-gray-700"
-      : "bg-white border-gray-100"
+    <div className={`rounded-xl   ${theme === 'dark' ? 'border-gray-700' : ''} shadow-sm   p-4 sm:p-6 w-full min-w-0 ${theme === "dark"
+      ? "bg-darkBg border-gray-700"
+      : "bg-lightBg border-gray-100"
       }`}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-        <div className="flex items-center">
+        <div className="flex items-center -ml-3.5">
           <div className="flex flex-col mr-2">
             <span className="w-1 h-2 bg-[#ae97f3]"></span>
             <span className="w-1 h-2 bg-[#97f0a2]"></span>
           </div>
-          <span className={`font-semibold text-base sm:text-lg ${theme === "dark" ? "text-gray-100" : "text-gray-900"
+          <span className={`font-semibold text-md sm:text-md ${theme === "dark" ? "text-primaryText" : "text-gray-900"
             }`}>Revenue Analytics</span>
         </div>
-        <a href="#" className={`text-xs sm:text-sm font-semibold hover:underline self-start sm:self-auto ${theme === "dark" ? "text-blue-400" : "text-blue-500"
-          }`}>View All</a>
+        <div className="flex items-center gap-1  cursor-pointer">
+				<span
+					className={`text-xs font-medium ${theme === "dark" ? "text-secondaryText" : "text-gray-500"
+						}`}
+				>
+					View All
+				</span>
+				<svg
+					width="16"
+					height="16"
+					fill="none"
+					className={
+						theme === "dark" ? "text-gray-400" : "text-gray-400"
+					}
+				>
+					<path
+						d="M4 6l4 4 4-4"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+					/>
+				</svg>
+			</div>
       </div>
 
       <hr className={`mb-4 ${theme === "dark" ? "border-gray-700" : "border-gray-200"
         }`} />
 
-      <div className={`text-xs sm:text-sm mb-4 ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+      <div className={`text-xs sm:text-sm mb-4 ${theme === "dark" ? "text-secondaryText" : "text-gray-500"
         }`}>Revenue Analytics with sales & profit (USD)</div>
 
       <div className="w-full overflow-x-auto">
@@ -104,19 +125,19 @@ export default function RevenueAnalytics({ theme = "light" }) {
 
       <div className="flex flex-wrap gap-4 sm:gap-6 mt-4 justify-center sm:justify-start">
         <div className="flex items-center gap-2">
-          <span className={`w-3 h-3 rounded-full inline-block ${theme === "dark" ? "bg-gray-300" : "bg-gray-800"
+          <span className={`w-3 h-3 rounded-full inline-block ${theme === "dark" ? "bg-secondaryText" : "bg-tertiaryText"
             }`}></span>
-          <span className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"
+          <span className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-secondaryText" : "text-tertiaryText"
             }`}>Sales</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#38bdf8] inline-block"></span>
-          <span className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"
+          <span className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-secondaryText" : "text-tertiaryText"
             }`}>Revenue</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#a78bfa] inline-block"></span>
-          <span className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"
+          <span className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-secondaryText" : "text-tertiaryText"
             }`}>Profit</span>
         </div>
       </div>
